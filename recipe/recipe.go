@@ -10,7 +10,7 @@ import (
 const recipesPath = "recipes"
 
 type Recipe struct {
-	RecipeId    int    `json:"recipeId"`
+	Id          int    `json:"id"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
 }
@@ -37,7 +37,7 @@ func handleRecipes(w http.ResponseWriter, r *http.Request) {
 func getRecipes() []Recipe {
 	return []Recipe{
 		{
-			RecipeId:    1,
+			Id:          1,
 			Name:        "Chilli Con Carne",
 			Description: "Classic Mexican dish that's pure comfort food",
 		},
