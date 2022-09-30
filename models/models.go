@@ -1,16 +1,18 @@
 package models
 
-type Recipe struct {
-	Id                 int                  `json:"id"`
-	Name               string               `json:"name"`
-	Text               string               `json:"Text"`
-	Instruction        Instruction          `json:"instruction"`
-	IngredientQuantity []IngredientQuantity `json:"ingredientQuantity"`
+type User struct {
+	Id        int      `json:"id"`
+	Firstname string   `json:"firstname"`
+	Lastname  string   `json:"lastname"`
+	Recipes   []Recipe `json:"recipes"`
 }
 
-type Instruction struct {
-	Id    int    `json:"id"`
-	Value string `json:"value"`
+type Recipe struct {
+	Id                 int                  `json:"id"`
+	UserId             int                  `json:"userId"`
+	Name               string               `json:"name"`
+	Text               string               `json:"Text"`
+	IngredientQuantity []IngredientQuantity `json:"ingredientQuantity"`
 }
 
 type Ingredient struct {

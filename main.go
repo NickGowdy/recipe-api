@@ -54,7 +54,7 @@ func connectToDb() {
 	migrations(db)
 }
 
-func migrations(db *sql.DB) (sql.Result, error) {
+func migrations(db *sql.DB) {
 	dirname, err := os.Getwd()
 	if err != nil {
 		log.Fatal(err)
@@ -67,9 +67,13 @@ func migrations(db *sql.DB) (sql.Result, error) {
 		log.Fatal(err)
 	}
 
-	res, err := dot.Exec(db, "create-recipes-table")
+	runScript(db, dot, "create-user-table")
+	runScript(db, dot, "create-recipes-table")
+}
+
+func runScript(db *sql.DB, dot *dotsql.DotSql, name string) {
+	_, err := dot.Exec(db, name)
 	if err != nil {
 		log.Fatal(err)
 	}
-	return res, nil
 }
