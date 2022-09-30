@@ -3,12 +3,11 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
-	"strings"
 
 	_ "github.com/lib/pq"
+	"github.com/qustavo/dotsql"
 	"github.com/recipe-api/m/recipe"
 )
 
@@ -19,7 +18,7 @@ const (
 	port     = 5432
 	user     = "postgres"
 	password = "postgres"
-	dbname   = "recipes"
+	dbname   = "recipes_db"
 )
 
 func main() {
@@ -28,6 +27,7 @@ func main() {
 
 func setupRoutes() {
 	connectToDb()
+
 	recipe.SetupRoutes(basePath)
 }
 
@@ -51,31 +51,25 @@ func connectToDb() {
 
 	fmt.Println("Connected!")
 
+	migrations(db)
+}
+
+func migrations(db *sql.DB) (sql.Result, error) {
 	dirname, err := os.Getwd()
 	if err != nil {
 		log.Fatal(err)
 	}
 	fmt.Println(dirname)
 
-	file, err := ioutil.ReadFile(fmt.Sprintf("%s/scripts/db/init.sql", dirname))
+	dot, err := dotsql.LoadFromFile(fmt.Sprintf("%s/scripts/db/init.sql", dirname))
+
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
-	tx, err := db.Begin()
+
+	res, err := dot.Exec(db, "create-recipes-table")
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
-	defer func() {
-		tx.Rollback()
-	}()
-	for _, q := range strings.Split(string(file), ";") {
-		q := strings.TrimSpace(q)
-		if q == "" {
-			continue
-		}
-		if err != nil {
-			panic(err)
-		}
-	}
-	tx.Commit()
+	return res, nil
 }

@@ -33,9 +33,9 @@ func handleRecipes(w http.ResponseWriter, r *http.Request) {
 func getRecipes() []models.Recipe {
 	return []models.Recipe{
 		{
-			Id:          1,
-			Name:        "Chilli Con Carne",
-			Description: "Classic Mexican dish that's pure comfort food",
+			Id:   1,
+			Name: "Chilli Con Carne",
+			Text: "Classic Mexican dish that's pure comfort food",
 			IngredientQuantity: []models.IngredientQuantity{
 				{
 					Id:             1,

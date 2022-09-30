@@ -1,2 +1,5 @@
 github.com/lib/pq v1.10.7 h1:p7ZhMD+KsSRozJr34udlUrhboJwWAgCg34+/ZZNvZZw=
 github.com/lib/pq v1.10.7/go.mod h1:AlVN5x4E4T544tWzH6hKfbfQvm3HdbOxrmggDNAPY9o=
+github.com/mxk/go-sqlite v0.0.0-20140611214908-167da9432e1f/go.mod h1:pkc41e3zYdLbnNZr/Zr5u/Ozr7D0p8EorhQiE+DmM4Y=
+github.com/qustavo/dotsql v1.1.0 h1:Yw+x4HacArj41O4z4oDso1KZqQ+if7O2jj8igcLqGM0=
+github.com/qustavo/dotsql v1.1.0/go.mod h1:ypGu9g6a8LYpavOT8VBsJO+plC0tLW6onMxwMvyoZIM=

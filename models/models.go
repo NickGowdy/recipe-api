@@ -3,7 +3,7 @@ package models
 type Recipe struct {
 	Id                 int                  `json:"id"`
 	Name               string               `json:"name"`
-	Description        string               `json:"description"`
+	Text               string               `json:"Text"`
 	Instruction        Instruction          `json:"instruction"`
 	IngredientQuantity []IngredientQuantity `json:"ingredientQuantity"`
 }
