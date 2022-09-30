@@ -5,15 +5,11 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+
+	"github.com/recipe-api/m/models"
 )
 
 const recipesPath = "recipes"
-
-type Recipe struct {
-	Id          int    `json:"id"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-}
 
 func SetupRoutes(apiBasePath string) {
 	recipeHandlers := http.HandlerFunc(handleRecipes)
@@ -34,12 +30,28 @@ func handleRecipes(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func getRecipes() []Recipe {
-	return []Recipe{
+func getRecipes() []models.Recipe {
+	return []models.Recipe{
 		{
 			Id:          1,
 			Name:        "Chilli Con Carne",
 			Description: "Classic Mexican dish that's pure comfort food",
+			IngredientQuantity: []models.IngredientQuantity{
+				{
+					Id:             1,
+					IngredientId:   1,
+					QuantityTypeId: 1,
+					QuantityType: models.QuantityType{
+						Id:   1,
+						Type: "Default",
+					},
+					Ingredient: models.Ingredient{
+						Id:   1,
+						Name: "Onion",
+					},
+					Amount: 1,
+				},
+			},
 		},
 	}
 }
