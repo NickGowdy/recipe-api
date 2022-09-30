@@ -3,6 +3,10 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"io/ioutil"
+	"log"
+	"os"
+	"strings"
 
 	_ "github.com/lib/pq"
 	"github.com/recipe-api/m/recipe"
@@ -46,4 +50,32 @@ func connectToDb() {
 	}
 
 	fmt.Println("Connected!")
+
+	dirname, err := os.Getwd()
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(dirname)
+
+	file, err := ioutil.ReadFile(fmt.Sprintf("%s/scripts/db/init.sql", dirname))
+	if err != nil {
+		panic(err)
+	}
+	tx, err := db.Begin()
+	if err != nil {
+		panic(err)
+	}
+	defer func() {
+		tx.Rollback()
+	}()
+	for _, q := range strings.Split(string(file), ";") {
+		q := strings.TrimSpace(q)
+		if q == "" {
+			continue
+		}
+		if err != nil {
+			panic(err)
+		}
+	}
+	tx.Commit()
 }
