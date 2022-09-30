@@ -13,14 +13,6 @@ import (
 
 const basePath = "/api"
 
-const (
-	host     = "database"
-	port     = 5432
-	user     = "postgres"
-	password = "postgres"
-	dbname   = "recipes_db"
-)
-
 func main() {
 	setupRoutes()
 }
@@ -32,7 +24,9 @@ func setupRoutes() {
 }
 
 func connectToDb() {
-	psqlconn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
+
+	var psqlconn = fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+		os.Getenv("host"), os.Getenv("port"), os.Getenv("user"), os.Getenv("password"), os.Getenv("dbname"))
 
 	// open database
 	db, err := sql.Open("postgres", psqlconn)
