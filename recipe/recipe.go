@@ -36,7 +36,7 @@ func getRecipes() []models.Recipe {
 			Id:   1,
 			Name: "Chilli Con Carne",
 			Text: "Classic Mexican dish that's pure comfort food",
-			IngredientQuantity: []models.IngredientQuantity{
+			IngredientQuantity: []models.IngredientQuantityType{
 				{
 					Id:             1,
 					IngredientId:   1,

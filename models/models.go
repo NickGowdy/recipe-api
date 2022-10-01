@@ -8,11 +8,11 @@ type User struct {
 }
 
 type Recipe struct {
-	Id                 int                  `json:"id"`
-	UserId             int                  `json:"userId"`
-	Name               string               `json:"name"`
-	Text               string               `json:"Text"`
-	IngredientQuantity []IngredientQuantity `json:"ingredientQuantity"`
+	Id                 int                      `json:"id"`
+	UserId             int                      `json:"userId"`
+	Name               string                   `json:"name"`
+	Text               string                   `json:"Text"`
+	IngredientQuantity []IngredientQuantityType `json:"ingredientQuantity"`
 }
 
 type Ingredient struct {
@@ -25,7 +25,7 @@ type QuantityType struct {
 	Type string `json:"type"`
 }
 
-type IngredientQuantity struct {
+type IngredientQuantityType struct {
 	Id             int          `json:"id"`
 	IngredientId   int          `json:"ingredientId"`
 	QuantityTypeId int          `json:"quantityTypeId"`

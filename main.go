@@ -62,7 +62,10 @@ func migrations(db *sql.DB) {
 	}
 
 	runScript(db, dot, "create-user-table")
-	runScript(db, dot, "create-recipes-table")
+	runScript(db, dot, "create-recipe-table")
+	runScript(db, dot, "create-ingredient-table")
+	runScript(db, dot, "create-quantity_type-table")
+	runScript(db, dot, "create-ingredient_quantity_type-table")
 }
 
 func runScript(db *sql.DB, dot *dotsql.DotSql, name string) {
