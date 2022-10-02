@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/recipe-api/m/models"
+	"github.com/recipe-api/models"
 )
 
 func GetUser(id int) (returnedAccount models.Account, err error) {

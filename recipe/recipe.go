@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/recipe-api/m/models"
+	"github.com/recipe-api/models"
 )
 
 func HandleRecipes(w http.ResponseWriter, r *http.Request) {

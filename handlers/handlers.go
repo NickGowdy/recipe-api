@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/recipe-api/m/recipe"
+	"github.com/recipe-api/recipe"
 )
 
 const recipesPath = "recipes"
