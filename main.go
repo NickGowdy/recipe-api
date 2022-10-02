@@ -12,6 +12,7 @@ func main() {
 }
 
 func setupRoutes() {
+
 	db.Migrate()
 
 	recipe.SetupRoutes(basePath)
