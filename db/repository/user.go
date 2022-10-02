@@ -9,7 +9,7 @@ import (
 	"github.com/recipe-api/models"
 )
 
-func GetUser(id int) (returnedAccount models.Account, err error) {
+func GetUser(id int) (returnedAccount models.User, err error) {
 
 	var psqlconn = fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		os.Getenv("host"), os.Getenv("port"), os.Getenv("user"), os.Getenv("password"), os.Getenv("dbname"))

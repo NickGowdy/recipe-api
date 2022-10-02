@@ -5,17 +5,17 @@ import (
 	"net/http"
 
 	"github.com/recipe-api/recipe"
+	"github.com/recipe-api/user"
 )
 
 const recipesPath = "recipes"
 
-// const userPath = "accounts"
+const accountsPath = "accounts"
 
 func SetupRoutes(apiBasePath string) {
-	// accountHandlers := http.HandlerFunc(account.HandleAccounts)
+	userHandler := http.HandlerFunc(user.HandleUser)
 	recipeHandlers := http.HandlerFunc(recipe.HandleRecipes)
 	http.Handle(fmt.Sprintf("%s/%s/", apiBasePath, recipesPath), recipeHandlers)
+	http.Handle(fmt.Sprintf("%s/%s/", apiBasePath, accountsPath), userHandler)
 	http.ListenAndServe(":8080", recipeHandlers)
-
-	// fmt.Println(accountHandlers)
 }
