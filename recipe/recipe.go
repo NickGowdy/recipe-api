@@ -2,22 +2,13 @@ package recipe
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/recipe-api/m/models"
 )
 
-const recipesPath = "recipes"
-
-func SetupRoutes(apiBasePath string) {
-	recipeHandlers := http.HandlerFunc(handleRecipes)
-	http.Handle(fmt.Sprintf("%s/%s/", apiBasePath, recipesPath), recipeHandlers)
-	http.ListenAndServe(":8080", recipeHandlers)
-}
-
-func handleRecipes(w http.ResponseWriter, r *http.Request) {
+func HandleRecipes(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
 		recipeList := getRecipes()

@@ -9,7 +9,7 @@ import (
 	"github.com/recipe-api/m/models"
 )
 
-func GetUser(id int) (returnedUser models.User, err error) {
+func GetUser(id int) (returnedAccount models.Account, err error) {
 
 	var psqlconn = fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		os.Getenv("host"), os.Getenv("port"), os.Getenv("user"), os.Getenv("password"), os.Getenv("dbname"))
@@ -26,7 +26,7 @@ func GetUser(id int) (returnedUser models.User, err error) {
 	}
 	defer rows.Close()
 	for rows.Next() {
-		err := rows.Scan(&returnedUser)
+		err := rows.Scan(&returnedAccount)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -37,5 +37,5 @@ func GetUser(id int) (returnedUser models.User, err error) {
 		log.Fatal(err)
 	}
 
-	return returnedUser, nil
+	return returnedAccount, nil
 }

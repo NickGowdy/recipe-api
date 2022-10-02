@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/recipe-api/m/db"
-	"github.com/recipe-api/m/recipe"
+	"github.com/recipe-api/m/handlers"
 )
 
 const basePath = "/api"
@@ -14,6 +14,5 @@ func main() {
 func setupRoutes() {
 
 	db.Migrate()
-
-	recipe.SetupRoutes(basePath)
+	handlers.SetupRoutes(basePath)
 }
