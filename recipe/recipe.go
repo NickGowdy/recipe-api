@@ -1,6 +1,6 @@
 package recipe
 
-import "github.com/recipe-api/m/models"
+import "github.com/recipe-api/models"
 
 func GetRecipes() []models.Recipe {
 	return []models.Recipe{

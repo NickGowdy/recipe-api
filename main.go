@@ -3,8 +3,8 @@ package main
 import (
 	"net/http"
 
-	"github.com/recipe-api/m/db"
-	"github.com/recipe-api/m/handlers"
+	"github.com/recipe-api/db"
+	"github.com/recipe-api/handlers"
 )
 
 const basePath = "/api"
