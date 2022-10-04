@@ -1,4 +1,4 @@
-module github.com/recipe-api/m
+module github.com/recipe-api
 
 go 1.19
 
