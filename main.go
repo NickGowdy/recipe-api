@@ -1,8 +1,10 @@
 package main
 
 import (
+	"net/http"
+
 	"github.com/recipe-api/m/db"
-	"github.com/recipe-api/m/recipe"
+	"github.com/recipe-api/m/handlers"
 )
 
 const basePath = "/api"
@@ -15,5 +17,6 @@ func setupRoutes() {
 
 	db.Migrate()
 
-	recipe.SetupRoutes(basePath)
+	handlers.SetupRoutes(basePath)
+	http.ListenAndServe(":8080", nil)
 }
