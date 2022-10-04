@@ -1,15 +1,19 @@
 package models
 
-type User struct {
-	Id        int      `json:"id"`
-	Firstname string   `json:"firstname"`
-	Lastname  string   `json:"lastname"`
-	Recipes   []Recipe `json:"recipes"`
+import "time"
+
+type Account struct {
+	Id          int       `json:"id"`
+	Firstname   string    `json:"firstname"`
+	Lastname    string    `json:"lastname"`
+	CreatedDate time.Time `json:"createdDate"`
+	UpdatedDate time.Time `json:"updatedDate"`
+	Recipes     []Recipe  `json:"recipes"`
 }
 
 type Recipe struct {
 	Id                 int                      `json:"id"`
-	UserId             int                      `json:"userId"`
+	AccountId          int                      `json:"accountId"`
 	Name               string                   `json:"name"`
 	Text               string                   `json:"Text"`
 	IngredientQuantity []IngredientQuantityType `json:"ingredientQuantity"`
