@@ -1,6 +1,6 @@
--- name: create-user-table
+-- name: create-account-table
 CREATE TABLE IF NOT EXISTS account (
-  id SERIAL PRIMARY KEY,
+  id INTEGER PRIMARY KEY generated always as identity,
   first_name VARCHAR(45) NOT NULL,
   last_name VARCHAR(45) NOT NULL,
   created_on TIMESTAMP NOT NULL,
@@ -36,3 +36,6 @@ CREATE TABLE IF NOT EXISTS ingredient_quantity_type (
   quantity_type_id INTEGER REFERENCES quantity_type (id),
   amount INTEGER NOT NULL
 );
+
+--name: insert-account
+INSERT INTO account (first_name, last_name, created_on, updated_on) VALUES('Nick', 'Gowdy', now(), now());
