@@ -11,7 +11,7 @@ import (
 
 func GetAccount(id int) (returnedAccount models.Account, err error) {
 
-	var psqlconn = fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+	psqlconn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		os.Getenv("host"), os.Getenv("port"), os.Getenv("user"), os.Getenv("password"), os.Getenv("dbname"))
 
 	db, err := sql.Open("postgres", psqlconn)

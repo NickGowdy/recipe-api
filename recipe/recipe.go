@@ -1,29 +1,45 @@
 package recipe
 
-import "github.com/recipe-api/models"
+import (
+	"database/sql"
+	"fmt"
+	"log"
+	"os"
 
-func GetRecipes() []models.Recipe {
-	return []models.Recipe{
-		{
-			Id:   1,
-			Name: "Chilli Con Carne",
-			Text: "Classic Mexican dish that's pure comfort food",
-			IngredientQuantity: []models.IngredientQuantityType{
-				{
-					Id:             1,
-					IngredientId:   1,
-					QuantityTypeId: 1,
-					QuantityType: models.QuantityType{
-						Id:   1,
-						Type: "Default",
-					},
-					Ingredient: models.Ingredient{
-						Id:   1,
-						Name: "Onion",
-					},
-					Amount: 1,
-				},
-			},
-		},
+	"github.com/recipe-api/models"
+)
+
+func GetRecipes(recipeId int) (returnedRecipes []models.Recipe, err error) {
+	var psqlconn = fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+		os.Getenv("host"), os.Getenv("port"), os.Getenv("user"), os.Getenv("password"), os.Getenv("dbname"))
+
+	db, err := sql.Open("postgres", psqlconn)
+
+	if err != nil {
+		log.Panic(err)
 	}
+
+	rows, err := db.Query("SELECT * FROM recipe where account_id=$1", recipeId)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println(rows)
+
+	for rows.Next() {
+		var recipe models.Recipe
+		err := rows.Scan(
+			&recipe.Id,
+			&recipe.AccountId,
+			&recipe.RecipeName,
+			&recipe.RecipeSteps,
+			&recipe.CreatedDate,
+			&recipe.UpdatedDate,
+		)
+		if err != nil {
+			log.Fatal(err)
+		}
+		returnedRecipes = append(returnedRecipes, recipe)
+	}
+	return returnedRecipes, nil
 }

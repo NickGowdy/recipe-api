@@ -12,11 +12,14 @@ type Account struct {
 }
 
 type Recipe struct {
-	Id                 int                      `json:"id"`
-	AccountId          int                      `json:"accountId"`
-	Name               string                   `json:"name"`
-	Text               string                   `json:"Text"`
-	IngredientQuantity []IngredientQuantityType `json:"ingredientQuantity"`
+	Id          int       `json:"id"`
+	AccountId   int       `json:"accountId"`
+	RecipeName  string    `json:"recipeName"`
+	RecipeSteps string    `json:"recipeSteps"`
+	CreatedDate time.Time `json:"createdDate"`
+	UpdatedDate time.Time `json:"updatedDate"`
+	// TODO: implement this later.
+	// IngredientQuantity []IngredientQuantityType `json:"ingredientQuantity"`
 }
 
 type Ingredient struct {

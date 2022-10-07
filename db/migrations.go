@@ -20,6 +20,7 @@ func Migrate() {
 	runScript(db, dot, "create-quantity_type-table")
 	runScript(db, dot, "create-ingredient_quantity_type-table")
 	runScript(db, dot, "insert-account")
+	runScript(db, dot, "insert-recipe")
 
 	// close database
 	defer db.Close()

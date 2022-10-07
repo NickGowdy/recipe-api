@@ -11,12 +11,16 @@ import (
 func handleRecipes(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
-		recipeList := recipe.GetRecipes()
+		recipeList, err := recipe.GetRecipes(1)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
 		j, err := json.Marshal(recipeList)
 		if err != nil {
 			log.Fatal(err)
 		}
 		w.Write(j)
-
 	}
 }
