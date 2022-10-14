@@ -10,14 +10,7 @@ import (
 )
 
 func GetRecipes(accountId int) (rs []models.Recipe, err error) {
-	psqlconn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-		os.Getenv("host"), os.Getenv("port"), os.Getenv("user"), os.Getenv("password"), os.Getenv("dbname"))
-
-	db, err := sql.Open("postgres", psqlconn)
-
-	if err != nil {
-		log.Panic(err)
-	}
+	db := getConnection()
 
 	rows, err := db.Query("select * from recipe where account_id=$1", accountId)
 	if err != nil {
@@ -49,14 +42,7 @@ func GetRecipes(accountId int) (rs []models.Recipe, err error) {
 }
 
 func SaveRecipe(nr *models.Recipe) (b bool, err error) {
-	psqlconn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-		os.Getenv("host"), os.Getenv("port"), os.Getenv("user"), os.Getenv("password"), os.Getenv("dbname"))
-
-	db, err := sql.Open("postgres", psqlconn)
-
-	if err != nil {
-		log.Panic(err)
-	}
+	db := getConnection()
 
 	q := `insert into recipe ("account_id", "recipe_name", "recipe_steps", "created_on", "updated_on") values($1, $2, $3, now(), now())`
 	_, err = db.Exec(q, nr.AccountId, nr.RecipeName, nr.RecipeSteps)
@@ -66,4 +52,17 @@ func SaveRecipe(nr *models.Recipe) (b bool, err error) {
 	}
 
 	return true, nil
+}
+
+func getConnection() sql.DB {
+	psqlconn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+		os.Getenv("host"), os.Getenv("port"), os.Getenv("user"), os.Getenv("password"), os.Getenv("dbname"))
+
+	db, err := sql.Open("postgres", psqlconn)
+
+	if err != nil {
+		log.Panic(err)
+	}
+
+	return *db
 }
