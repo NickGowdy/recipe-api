@@ -14,7 +14,7 @@ import (
 const accountsPath = "accounts"
 
 func SetupRoutes(apiBasePath string) {
-	accountHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
 			if strings.Contains(r.URL.Path, "/recipes") {
@@ -24,7 +24,7 @@ func SetupRoutes(apiBasePath string) {
 			}
 		}
 	})
-	http.Handle(fmt.Sprintf("%s/%s/", apiBasePath, accountsPath), accountHandler)
+	http.Handle(fmt.Sprintf("%s/%s/", apiBasePath, accountsPath), handler)
 }
 
 func handleRecipes(w http.ResponseWriter, r *http.Request) {

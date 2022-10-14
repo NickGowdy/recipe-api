@@ -9,7 +9,7 @@ import (
 	"github.com/recipe-api/models"
 )
 
-func GetAccount(id int) (returnedAccount models.Account, err error) {
+func GetAccount(id int) (a models.Account, err error) {
 
 	psqlconn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		os.Getenv("host"), os.Getenv("port"), os.Getenv("user"), os.Getenv("password"), os.Getenv("dbname"))
@@ -27,11 +27,11 @@ func GetAccount(id int) (returnedAccount models.Account, err error) {
 	defer rows.Close()
 	for rows.Next() {
 		err := rows.Scan(
-			&returnedAccount.Id,
-			&returnedAccount.Firstname,
-			&returnedAccount.Lastname,
-			&returnedAccount.CreatedDate,
-			&returnedAccount.UpdatedDate)
+			&a.Id,
+			&a.Firstname,
+			&a.Lastname,
+			&a.CreatedDate,
+			&a.UpdatedDate)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -42,5 +42,5 @@ func GetAccount(id int) (returnedAccount models.Account, err error) {
 		log.Fatal(err)
 	}
 
-	return returnedAccount, nil
+	return a, nil
 }
