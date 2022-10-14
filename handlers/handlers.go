@@ -24,5 +24,7 @@ func getHandler(w http.ResponseWriter, r *http.Request) {
 		HandleAccount(w, r)
 	case len(UrlSegments) == 4 && UrlSegments[1] == "accounts" && UrlSegments[3] == "recipes" && r.Method == http.MethodGet:
 		HandleRecipes(w, r)
+	case len(UrlSegments) == 2 && UrlSegments[1] == "recipes" && r.Method == http.MethodPost:
+		HandleRecipe(w, r)
 	}
 }

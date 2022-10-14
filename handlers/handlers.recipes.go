@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/recipe-api/db/repository"
+	"github.com/recipe-api/models"
 )
 
 func HandleRecipes(w http.ResponseWriter, r *http.Request) {
@@ -34,5 +35,22 @@ func HandleRecipes(w http.ResponseWriter, r *http.Request) {
 			log.Fatal(err)
 		}
 		w.Write(j)
+	}
+}
+
+func HandleRecipe(w http.ResponseWriter, r *http.Request) {
+	var nr models.Recipe
+
+	err := json.NewDecoder(r.Body).Decode(&nr)
+
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	b, _ := repository.SaveRecipe(&nr)
+
+	if b {
+		w.Write([]byte("works"))
 	}
 }
