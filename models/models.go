@@ -3,12 +3,12 @@ package models
 import "time"
 
 type Account struct {
-	Id          int       `json:"id"`
-	Firstname   string    `json:"firstname"`
-	Lastname    string    `json:"lastname"`
-	CreatedDate time.Time `json:"createdDate"`
-	UpdatedDate time.Time `json:"updatedDate"`
-	Recipes     []Recipe  `json:"recipes"`
+	Id        int       `json:"id"`
+	Firstname string    `json:"firstname"`
+	Lastname  string    `json:"lastname"`
+	CreatedOn time.Time `json:"createdOn"`
+	UpdatedOn time.Time `json:"updatedOn"`
+	Recipes   []Recipe  `json:"recipes"`
 }
 
 type Recipe struct {
@@ -16,20 +16,24 @@ type Recipe struct {
 	AccountId   int       `json:"accountId"`
 	RecipeName  string    `json:"recipeName"`
 	RecipeSteps string    `json:"recipeSteps"`
-	CreatedDate time.Time `json:"createdDate"`
-	UpdatedDate time.Time `json:"updatedDate"`
+	CreatedOn   time.Time `json:"createdOn"`
+	UpdatedOn   time.Time `json:"updatedOn"`
 	// TODO: implement this later.
 	// IngredientQuantity []IngredientQuantityType `json:"ingredientQuantity"`
 }
 
 type Ingredient struct {
-	Id   int    `json:"id"`
-	Name string `json:"name"`
+	Id        int       `json:"id"`
+	Name      string    `json:"name"`
+	CreatedOn time.Time `json:"createdOn"`
+	UpdatedOn time.Time `json:"updatedOn"`
 }
 
 type QuantityType struct {
-	Id   int    `json:"id"`
-	Type string `json:"type"`
+	Id        int       `json:"id"`
+	Type      string    `json:"type"`
+	CreatedOn time.Time `json:"createdOn"`
+	UpdatedOn time.Time `json:"updatedOn"`
 }
 
 type IngredientQuantityType struct {
@@ -39,4 +43,6 @@ type IngredientQuantityType struct {
 	Amount         int          `json:"quantity"`
 	Ingredient     Ingredient   `json:"ingredient"`
 	QuantityType   QuantityType `json:"quantityType"`
+	CreatedOn      time.Time    `json:"createdOn"`
+	UpdatedOn      time.Time    `json:"updatedOn"`
 }

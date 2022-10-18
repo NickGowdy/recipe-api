@@ -30,8 +30,8 @@ func GetAccount(id int) (a models.Account, err error) {
 			&a.Id,
 			&a.Firstname,
 			&a.Lastname,
-			&a.CreatedDate,
-			&a.UpdatedDate)
+			&a.CreatedOn,
+			&a.UpdatedOn)
 		if err != nil {
 			log.Fatal(err)
 		}

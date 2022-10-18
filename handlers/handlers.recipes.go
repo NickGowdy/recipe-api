@@ -39,18 +39,56 @@ func HandleRecipes(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandleRecipe(w http.ResponseWriter, r *http.Request) {
-	var nr models.Recipe
+	switch r.Method {
+	case http.MethodGet:
+		{
+			urlPathSegments := strings.Split(r.URL.Path, "/")
+			accountId, err := strconv.Atoi(urlPathSegments[3])
+			if err != nil {
+				log.Print(err)
+				w.WriteHeader(http.StatusNotFound)
+				return
+			}
+			recipeId, err := strconv.Atoi(urlPathSegments[5])
+			if err != nil {
+				log.Print(err)
+				w.WriteHeader(http.StatusNotFound)
+				return
+			}
 
-	err := json.NewDecoder(r.Body).Decode(&nr)
+			rs, err := repository.GetRecipe(recipeId, accountId)
 
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
+			if err != nil {
+				log.Print(err)
+				w.WriteHeader(http.StatusNotFound)
+				return
+			}
+
+			j, err := json.Marshal(rs)
+
+			if err != nil {
+				log.Print(err)
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+
+			w.Write(j)
+		}
+	case http.MethodPost:
+		var nr models.Recipe
+
+		err := json.NewDecoder(r.Body).Decode(&nr)
+
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		b, _ := repository.SaveRecipe(&nr)
+
+		if b {
+			w.Write([]byte("works"))
+		}
 	}
 
-	b, _ := repository.SaveRecipe(&nr)
-
-	if b {
-		w.Write([]byte("works"))
-	}
 }
