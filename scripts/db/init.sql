@@ -20,13 +20,17 @@ CREATE TABLE IF NOT EXISTS recipe (
 -- name: create-ingredient-table
 CREATE TABLE IF NOT EXISTS ingredient (
   id INTEGER PRIMARY KEY generated always as identity,
-  name VARCHAR(45) NOT NULL
+  name VARCHAR(45) NOT NULL,
+  created_on TIMESTAMP NOT NULL,
+  updated_on TIMESTAMP NOT NULL
 );
 
 -- name: create-quantity_type-table
 CREATE TABLE IF NOT EXISTS quantity_type (
   id INTEGER PRIMARY KEY generated always as identity,
-  type VARCHAR(45) NOT NULL
+  type VARCHAR(45) NOT NULL,
+  created_on TIMESTAMP NOT NULL,
+  updated_on TIMESTAMP NOT NULL
 );
 
 -- name: create-ingredient_quantity_type-table
@@ -34,7 +38,9 @@ CREATE TABLE IF NOT EXISTS ingredient_quantity_type (
   id INTEGER PRIMARY KEY generated always as identity,
   ingredient_id INTEGER REFERENCES ingredient (id),
   quantity_type_id INTEGER REFERENCES quantity_type (id),
-  amount INTEGER NOT NULL
+  amount INTEGER NOT NULL,
+  created_on TIMESTAMP NOT NULL,
+  updated_on TIMESTAMP NOT NULL
 );
 
 --name: insert-account
