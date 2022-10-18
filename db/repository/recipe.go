@@ -81,6 +81,19 @@ func SaveRecipe(nr *models.Recipe) (b bool, err error) {
 	return true, nil
 }
 
+func DeleteRecipe(recipeId int, accountid int) (d bool, err error) {
+	db := getConnection()
+
+	q := `delete from recipe where id=$1 and account_id=$2`
+	_, err = db.Exec(q, recipeId, accountid)
+
+	if err != nil {
+		log.Panic(err)
+	}
+
+	return true, nil
+}
+
 func getConnection() sql.DB {
 	psqlconn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		os.Getenv("host"), os.Getenv("port"), os.Getenv("user"), os.Getenv("password"), os.Getenv("dbname"))
