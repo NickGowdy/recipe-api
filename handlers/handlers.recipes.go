@@ -114,5 +114,4 @@ func HandleRecipe(w http.ResponseWriter, r *http.Request) {
 
 		w.Write([]byte(strconv.FormatBool(b)))
 	}
-
 }

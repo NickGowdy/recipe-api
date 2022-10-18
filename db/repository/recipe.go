@@ -71,7 +71,7 @@ func GetRecipe(id int, account_id int) (r models.Recipe, err error) {
 func SaveRecipe(nr *models.Recipe) (b bool, err error) {
 	db := getConnection()
 
-	q := `insert into recipe ("account_id", "recipe_name", "recipe_steps", "created_on", "updated_on") values($1, $2, $3, now(), now())`
+	q := `INSERT INTO recipe ("account_id", "recipe_name", "recipe_steps", "created_on", "updated_on") VALUES($1, $2, $3, now(), now())`
 	_, err = db.Exec(q, nr.AccountId, nr.RecipeName, nr.RecipeSteps)
 
 	if err != nil {
@@ -84,7 +84,7 @@ func SaveRecipe(nr *models.Recipe) (b bool, err error) {
 func DeleteRecipe(recipeId int, accountid int) (d bool, err error) {
 	db := getConnection()
 
-	q := `delete from recipe where id=$1 and account_id=$2`
+	q := `DELETE FROM recipe WHERE id=$1 AND account_id=$2`
 	_, err = db.Exec(q, recipeId, accountid)
 
 	if err != nil {

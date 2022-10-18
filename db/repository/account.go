@@ -20,7 +20,7 @@ func GetAccount(id int) (a models.Account, err error) {
 		log.Panic(err)
 	}
 
-	rows, err := db.Query("select * from account where id=$1", id)
+	rows, err := db.Query("SELECT * FROM account WHERE id=$1", id)
 	if err != nil {
 		log.Fatal(err)
 	}
