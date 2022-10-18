@@ -94,6 +94,28 @@ func DeleteRecipe(recipeId int, accountid int) (d bool, err error) {
 	return true, nil
 }
 
+func UpdateRecipe(er *models.Recipe, recipeid int, accountid int) (d bool) {
+	db := getConnection()
+
+	dr, _ := GetRecipe(recipeid, accountid)
+
+	if dr.Id != recipeid && dr.AccountId != accountid {
+		return false
+	}
+
+	q := `
+		UPDATE recipe
+		SET recipe_name = $3, recipe_steps = $4
+		WHERE id = $1 AND account_id = $2;`
+
+	_, err := db.Exec(q, recipeid, accountid, er.RecipeName, er.RecipeSteps)
+	if err != nil {
+		panic(err)
+	}
+
+	return true
+}
+
 func getConnection() sql.DB {
 	psqlconn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		os.Getenv("host"), os.Getenv("port"), os.Getenv("user"), os.Getenv("password"), os.Getenv("dbname"))
