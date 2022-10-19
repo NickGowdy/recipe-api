@@ -20,27 +20,14 @@ func GetAccount(id int) (a models.Account, err error) {
 		log.Panic(err)
 	}
 
-	rows, err := db.Query("SELECT * FROM account WHERE id=$1", id)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer rows.Close()
-	for rows.Next() {
-		err := rows.Scan(
-			&a.Id,
-			&a.Firstname,
-			&a.Lastname,
-			&a.CreatedOn,
-			&a.UpdatedOn)
-		if err != nil {
-			log.Fatal(err)
-		}
-		log.Println(id)
-	}
-	err = rows.Err()
-	if err != nil {
-		log.Fatal(err)
-	}
+	row := db.QueryRow("SELECT * FROM account WHERE id=$1", id)
 
-	return a, nil
+	switch err := row.Scan(&a.Id, &a.Firstname, &a.Lastname, &a.CreatedOn, &a.UpdatedOn); err {
+	case sql.ErrNoRows:
+		return a, err
+	case nil:
+		return a, nil
+	default:
+		panic(err)
+	}
 }
