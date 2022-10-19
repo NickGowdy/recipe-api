@@ -2,15 +2,13 @@ package repository
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
-	"os"
 
 	"github.com/recipe-api/models"
 )
 
 func GetRecipes(accountId int) (rs []models.Recipe, err error) {
-	db := getConnection()
+	db := Database()
 
 	rows, err := db.Query("select * from recipe where account_id=$1", accountId)
 	if err != nil {
@@ -40,7 +38,7 @@ func GetRecipes(accountId int) (rs []models.Recipe, err error) {
 }
 
 func GetRecipe(id int, account_id int) (r models.Recipe, err error) {
-	db := getConnection()
+	db := Database()
 
 	row := db.QueryRow("SELECT * FROM recipe WHERE id=$1 and account_id=$2", id, account_id)
 
@@ -55,7 +53,7 @@ func GetRecipe(id int, account_id int) (r models.Recipe, err error) {
 }
 
 func SaveRecipe(nr *models.Recipe) (b bool, err error) {
-	db := getConnection()
+	db := Database()
 
 	q := `INSERT INTO recipe ("account_id", "recipe_name", "recipe_steps", "created_on", "updated_on") VALUES($1, $2, $3, now(), now())`
 	_, err = db.Exec(q, nr.AccountId, nr.RecipeName, nr.RecipeSteps)
@@ -68,7 +66,7 @@ func SaveRecipe(nr *models.Recipe) (b bool, err error) {
 }
 
 func DeleteRecipe(recipeId int, accountid int) (d bool, err error) {
-	db := getConnection()
+	db := Database()
 
 	q := `DELETE FROM recipe WHERE id=$1 AND account_id=$2`
 	_, err = db.Exec(q, recipeId, accountid)
@@ -81,7 +79,7 @@ func DeleteRecipe(recipeId int, accountid int) (d bool, err error) {
 }
 
 func UpdateRecipe(er *models.Recipe, recipeid int, accountid int) (d bool) {
-	db := getConnection()
+	db := Database()
 
 	dr, _ := GetRecipe(recipeid, accountid)
 
@@ -100,17 +98,4 @@ func UpdateRecipe(er *models.Recipe, recipeid int, accountid int) (d bool) {
 	}
 
 	return true
-}
-
-func getConnection() sql.DB {
-	psqlconn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-		os.Getenv("host"), os.Getenv("port"), os.Getenv("user"), os.Getenv("password"), os.Getenv("dbname"))
-
-	db, err := sql.Open("postgres", psqlconn)
-
-	if err != nil {
-		log.Panic(err)
-	}
-
-	return *db
 }
