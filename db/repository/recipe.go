@@ -42,30 +42,16 @@ func GetRecipes(accountId int) (rs []models.Recipe, err error) {
 func GetRecipe(id int, account_id int) (r models.Recipe, err error) {
 	db := getConnection()
 
-	rows, err := db.Query("select * from recipe where id=$1 and account_id=$2", id, account_id)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer rows.Close()
-	for rows.Next() {
-		err := rows.Scan(
-			&r.Id,
-			&r.AccountId,
-			&r.RecipeName,
-			&r.RecipeSteps,
-			&r.CreatedOn,
-			&r.UpdatedOn)
-		if err != nil {
-			log.Fatal(err)
-		}
-		log.Println(id)
-	}
-	err = rows.Err()
-	if err != nil {
-		log.Fatal(err)
-	}
+	row := db.QueryRow("SELECT * FROM recipe WHERE id=$1 and account_id=$2", id, account_id)
 
-	return r, nil
+	switch err := row.Scan(&r.Id, &r.AccountId, &r.RecipeName, &r.RecipeSteps, &r.CreatedOn, &r.UpdatedOn); err {
+	case sql.ErrNoRows:
+		return r, err
+	case nil:
+		return r, nil
+	default:
+		panic(err)
+	}
 }
 
 func SaveRecipe(nr *models.Recipe) (b bool, err error) {
