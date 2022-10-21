@@ -1,7 +1,24 @@
-# recipe-api
+# Recipes API 
 
-This API is for saving your personal recipes:
+**This API provides all that you need to create and manage a list of recipes**
 
-To run locally you will need: [Docker](https://link-url-here.org) to host the API and Postgres Database
+<img src="./images/swedish-chef.gif" width="450" height="250" alt="happy-chef"/>
 
-Use `docker-compose up -d` to build and run the app.
+This API is built with Golang and Postgres. It can be run locally using docker which can be download [here](https://www.docker.com/) 
+
+- Once Docker is installed, to build the API run from the root of the project  `docker-compose up --build -d` or `docker-compose up --build` to help with debugging.
+
+- Run `docker-compose down` to stop the API and Postgres database or `docker-compose down --volumes` to also remove the database volumes.
+
+**List of endpoints*
+
+To get a list of your recipes use:
+```
+curl http://localhost:8080/api/accounts/{account_id}/recipes
+
+```
+
+
+
+
+
