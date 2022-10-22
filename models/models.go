@@ -11,6 +11,13 @@ type Account struct {
 	Recipes   []Recipe  `json:"recipes"`
 }
 
+type User struct {
+	Email     string    `json:"email"`
+	Password  string    `json:"password"`
+	CreatedOn time.Time `json:"createdOn"`
+	UpdatedOn time.Time `json:"updatedOn"`
+}
+
 type Recipe struct {
 	Id          int       `json:"id"`
 	AccountId   int       `json:"accountId"`

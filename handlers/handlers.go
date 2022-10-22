@@ -20,6 +20,8 @@ func getHandler(w http.ResponseWriter, r *http.Request) {
 	UrlSegments := strings.Split(r.URL.Path, "/")[1:]
 
 	switch {
+	case len(UrlSegments) == 2 && UrlSegments[1] == "user":
+		HandleUser(w, r)
 	case len(UrlSegments) == 2 && UrlSegments[1] == "login":
 		HandleLogin(w, r)
 	case len(UrlSegments) == 3 && UrlSegments[1] == "accounts":
