@@ -1,6 +1,10 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"golang.org/x/crypto/bcrypt"
+)
 
 type Account struct {
 	Id        int       `json:"id"`
@@ -52,4 +56,14 @@ type IngredientQuantityType struct {
 	QuantityType   QuantityType `json:"quantityType"`
 	CreatedOn      time.Time    `json:"createdOn"`
 	UpdatedOn      time.Time    `json:"updatedOn"`
+}
+
+func (u *User) hashPassword(password string) error {
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 4)
+	if err != nil {
+		return err
+	}
+
+	u.Password = string(bytes)
+	return nil
 }
