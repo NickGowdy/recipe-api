@@ -16,13 +16,20 @@ func Migrate() {
 	db := connect()
 	dot := getDirectory()
 
+	fmt.Println(os.Getenv("APP_ENV"))
+	fmt.Println("Running migrations")
 	runScript(db, dot, "create-account-table")
 	runScript(db, dot, "create-recipe-table")
 	runScript(db, dot, "create-ingredient-table")
 	runScript(db, dot, "create-quantity_type-table")
 	runScript(db, dot, "create-ingredient_quantity_type-table")
-	runScript(db, dot, "insert-account")
-	runScript(db, dot, "insert-recipe")
+
+	// Seed data for dev environment
+	if os.Getenv("APP_ENV") == "development" {
+		fmt.Println("Seeding dev data")
+		runScript(db, dot, "insert-account")
+		runScript(db, dot, "insert-recipe")
+	}
 
 	// close database
 	defer db.Close()
