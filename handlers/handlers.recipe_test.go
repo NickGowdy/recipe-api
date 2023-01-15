@@ -16,7 +16,7 @@ func TestGetRecipes(t *testing.T) {
 	t.Setenv("port", "5432")
 	db.Migrate()
 
-	handler := http.HandlerFunc(handleRecipes)
+	handler := http.HandlerFunc(HandleRecipes)
 	rr := httptest.NewRecorder()
 	req, err := http.NewRequest("GET", "/api/recipes", nil)
 
