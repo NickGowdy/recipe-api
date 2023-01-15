@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 
+	"github.com/joho/godotenv"
 	"github.com/recipe-api/db"
 	"github.com/recipe-api/handlers"
 )
@@ -10,6 +11,7 @@ import (
 const basePath = "/api"
 
 func main() {
+	godotenv.Load()
 	setupRoutes()
 }
 

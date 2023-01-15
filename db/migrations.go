@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path"
+	"runtime"
 
 	_ "github.com/lib/pq"
 	"github.com/qustavo/dotsql"
@@ -47,13 +49,11 @@ func connect() *sql.DB {
 }
 
 func getDirectory() *dotsql.DotSql {
-	dirname, err := os.Getwd()
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println(dirname)
+	// get relative path with runtime.caller
+	_, b, _, _ := runtime.Caller(0)
+	relativePath := path.Join(path.Dir(b))
 
-	dot, err := dotsql.LoadFromFile(fmt.Sprintf("%s/scripts/db/init.sql", dirname))
+	dot, err := dotsql.LoadFromFile(fmt.Sprintf("%s/init.sql", relativePath))
 
 	if err != nil {
 		log.Fatal(err)
