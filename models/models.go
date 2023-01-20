@@ -12,7 +12,7 @@ type Account struct {
 	Lastname  string    `json:"lastname"`
 	CreatedOn time.Time `json:"createdOn"`
 	UpdatedOn time.Time `json:"updatedOn"`
-	Recipes   []Recipe  `json:"recipes"`
+	// Recipes   []Recipe  `json:"recipes"`
 }
 
 type User struct {
@@ -20,17 +20,6 @@ type User struct {
 	Password  string    `json:"password"`
 	CreatedOn time.Time `json:"createdOn"`
 	UpdatedOn time.Time `json:"updatedOn"`
-}
-
-type Recipe struct {
-	Id          int       `json:"id"`
-	AccountId   int       `json:"accountId"`
-	RecipeName  string    `json:"recipeName"`
-	RecipeSteps string    `json:"recipeSteps"`
-	CreatedOn   time.Time `json:"createdOn"`
-	UpdatedOn   time.Time `json:"updatedOn"`
-	// TODO: implement this later.
-	// IngredientQuantity []IngredientQuantityType `json:"ingredientQuantity"`
 }
 
 type Ingredient struct {

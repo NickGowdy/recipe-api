@@ -1,148 +1,110 @@
 package handlers
 
-import (
-	"encoding/json"
-	"log"
-	"net/http"
-	"strconv"
-	"strings"
+// func HandleRecipe(w http.ResponseWriter, r *http.Request) {
+// 	switch r.Method {
+// 	case http.MethodGet:
+// 		{
+// 			urlPathSegments := strings.Split(r.URL.Path, "/")
+// 			accountId, err := strconv.Atoi(urlPathSegments[3])
+// 			if err != nil {
+// 				log.Print(err)
+// 				w.WriteHeader(http.StatusNotFound)
+// 				return
+// 			}
+// 			recipeId, err := strconv.Atoi(urlPathSegments[5])
+// 			if err != nil {
+// 				log.Print(err)
+// 				w.WriteHeader(http.StatusNotFound)
+// 				return
+// 			}
 
-	"github.com/recipe-api/db/repository"
-	"github.com/recipe-api/models"
-)
+// 			rs, err := repository.GetRecipe(recipeId, accountId)
 
-func HandleRecipes(w http.ResponseWriter, r *http.Request) {
-	urlPathSegments := strings.Split(r.URL.Path, "/")
+// 			if err != nil {
+// 				log.Print(err)
+// 				w.WriteHeader(http.StatusNotFound)
+// 				return
+// 			}
 
-	if len(urlPathSegments) == 5 {
-		accountId, err := strconv.Atoi(urlPathSegments[3])
+// 			j, err := json.Marshal(rs)
 
-		if err != nil {
-			log.Print(err)
-			w.WriteHeader(http.StatusNotFound)
-			return
-		}
+// 			if err != nil {
+// 				log.Print(err)
+// 				w.WriteHeader(http.StatusInternalServerError)
+// 				return
+// 			}
 
-		rs, err := repository.GetRecipes(accountId)
+// 			w.Write(j)
+// 		}
+// 	case http.MethodPost:
+// 		var nr models.Recipe
 
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
+// 		err := json.NewDecoder(r.Body).Decode(&nr)
 
-		j, err := json.Marshal(rs)
-		if err != nil {
-			log.Fatal(err)
-		}
-		w.Write(j)
-	}
-}
+// 		if err != nil {
+// 			w.WriteHeader(http.StatusBadRequest)
+// 			return
+// 		}
 
-func HandleRecipe(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case http.MethodGet:
-		{
-			urlPathSegments := strings.Split(r.URL.Path, "/")
-			accountId, err := strconv.Atoi(urlPathSegments[3])
-			if err != nil {
-				log.Print(err)
-				w.WriteHeader(http.StatusNotFound)
-				return
-			}
-			recipeId, err := strconv.Atoi(urlPathSegments[5])
-			if err != nil {
-				log.Print(err)
-				w.WriteHeader(http.StatusNotFound)
-				return
-			}
+// 		b, _ := repository.SaveRecipe(&nr)
 
-			rs, err := repository.GetRecipe(recipeId, accountId)
+// 		if b {
+// 			w.Write([]byte(strconv.FormatBool(b)))
+// 		}
+// 	case http.MethodDelete:
+// 		urlPathSegments := strings.Split(r.URL.Path, "/")
+// 		accountId, err := strconv.Atoi(urlPathSegments[3])
+// 		if err != nil {
+// 			log.Print(err)
+// 			w.WriteHeader(http.StatusNotFound)
+// 			return
+// 		}
+// 		recipeId, err := strconv.Atoi(urlPathSegments[5])
+// 		if err != nil {
+// 			log.Print(err)
+// 			w.WriteHeader(http.StatusNotFound)
+// 			return
+// 		}
 
-			if err != nil {
-				log.Print(err)
-				w.WriteHeader(http.StatusNotFound)
-				return
-			}
+// 		b, err := repository.DeleteRecipe(recipeId, accountId)
 
-			j, err := json.Marshal(rs)
+// 		if err != nil {
+// 			log.Print(err)
+// 			w.WriteHeader(http.StatusInternalServerError)
+// 			return
+// 		}
 
-			if err != nil {
-				log.Print(err)
-				w.WriteHeader(http.StatusInternalServerError)
-				return
-			}
+// 		w.Write([]byte(strconv.FormatBool(b)))
+// 	case http.MethodPut:
+// 		urlPathSegments := strings.Split(r.URL.Path, "/")
+// 		accountId, err := strconv.Atoi(urlPathSegments[3])
+// 		if err != nil {
+// 			log.Print(err)
+// 			w.WriteHeader(http.StatusNotFound)
+// 			return
+// 		}
+// 		recipeId, err := strconv.Atoi(urlPathSegments[5])
+// 		if err != nil {
+// 			log.Print(err)
+// 			w.WriteHeader(http.StatusNotFound)
+// 			return
+// 		}
+// 		var er models.Recipe
 
-			w.Write(j)
-		}
-	case http.MethodPost:
-		var nr models.Recipe
+// 		err = json.NewDecoder(r.Body).Decode(&er)
 
-		err := json.NewDecoder(r.Body).Decode(&nr)
+// 		if err != nil {
+// 			w.WriteHeader(http.StatusBadRequest)
+// 			return
+// 		}
 
-		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
+// 		b := repository.UpdateRecipe(&er, recipeId, accountId)
 
-		b, _ := repository.SaveRecipe(&nr)
+// 		if !b {
+// 			w.WriteHeader(http.StatusInternalServerError)
+// 			return
+// 		}
 
-		if b {
-			w.Write([]byte(strconv.FormatBool(b)))
-		}
-	case http.MethodDelete:
-		urlPathSegments := strings.Split(r.URL.Path, "/")
-		accountId, err := strconv.Atoi(urlPathSegments[3])
-		if err != nil {
-			log.Print(err)
-			w.WriteHeader(http.StatusNotFound)
-			return
-		}
-		recipeId, err := strconv.Atoi(urlPathSegments[5])
-		if err != nil {
-			log.Print(err)
-			w.WriteHeader(http.StatusNotFound)
-			return
-		}
-
-		b, err := repository.DeleteRecipe(recipeId, accountId)
-
-		if err != nil {
-			log.Print(err)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
-		w.Write([]byte(strconv.FormatBool(b)))
-	case http.MethodPut:
-		urlPathSegments := strings.Split(r.URL.Path, "/")
-		accountId, err := strconv.Atoi(urlPathSegments[3])
-		if err != nil {
-			log.Print(err)
-			w.WriteHeader(http.StatusNotFound)
-			return
-		}
-		recipeId, err := strconv.Atoi(urlPathSegments[5])
-		if err != nil {
-			log.Print(err)
-			w.WriteHeader(http.StatusNotFound)
-			return
-		}
-		var er models.Recipe
-
-		err = json.NewDecoder(r.Body).Decode(&er)
-
-		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		b := repository.UpdateRecipe(&er, recipeId, accountId)
-
-		if !b {
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
-		w.Write([]byte(strconv.FormatBool(b)))
-	}
-}
+// 		w.Write([]byte(strconv.FormatBool(b)))
+// 	}
+// }

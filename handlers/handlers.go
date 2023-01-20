@@ -1,36 +1,74 @@
 package handlers
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
-	"strings"
+	"strconv"
+
+	"github.com/gorilla/mux"
+	"github.com/recipe-api/db/repository"
 )
 
-func SetupRoutes(apiBasePath string) {
-
-	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		getHandler(w, r)
-	})
-
-	http.Handle(fmt.Sprintf("%s/", apiBasePath), handler)
+func SetupRoutes() {
+	log.Println("some messaage")
+	r := mux.NewRouter()
+	r.HandleFunc("/recipe", HandleRecipes).Methods("GET")
+	r.HandleFunc("/recipe/{id}", HandleRecipe).Methods("GET")
+	r.HandleFunc("/health-check", HealthCheck).Methods("GET")
+	http.Handle("api/", r)
+	err := http.ListenAndServe(":8080", r)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
-func getHandler(w http.ResponseWriter, r *http.Request) {
+func HealthCheck(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprintf(w, "API is up and running")
+}
 
-	UrlSegments := strings.Split(r.URL.Path, "/")[1:]
+func HandleRecipes(w http.ResponseWriter, r *http.Request) {
+	rs, err := repository.GetRecipes()
 
-	switch {
-	case len(UrlSegments) == 2 && UrlSegments[1] == "user":
-		HandleUser(w, r)
-	case len(UrlSegments) == 2 && UrlSegments[1] == "login":
-		HandleLogin(w, r)
-	case len(UrlSegments) == 3 && UrlSegments[1] == "accounts":
-		HandleAccount(w, r)
-	case len(UrlSegments) == 4 && UrlSegments[1] == "accounts" && UrlSegments[3] == "recipes":
-		HandleRecipes(w, r)
-	case len(UrlSegments) == 5 && UrlSegments[1] == "accounts" && UrlSegments[3] == "recipes":
-		HandleRecipe(w, r)
-	case len(UrlSegments) == 2 && UrlSegments[1] == "recipes":
-		HandleRecipe(w, r)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
+
+	j, err := json.Marshal(rs)
+	if err != nil {
+		log.Print(err)
+	}
+	w.Write(j)
+}
+
+func HandleRecipe(w http.ResponseWriter, r *http.Request) {
+	recipeId, err := strconv.Atoi(mux.Vars(r)["id"])
+
+	log.Print(recipeId)
+
+	if err != nil {
+		log.Print(err)
+		w.WriteHeader(http.StatusBadRequest)
+	}
+
+	rs, err := repository.GetRecipe(recipeId)
+
+	if err != nil {
+		log.Print(err)
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	j, err := json.Marshal(rs)
+
+	if err != nil {
+		log.Print(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.Write(j)
 }

@@ -24,4 +24,4 @@ RUN go build -o /build
 EXPOSE ${PORT}
 
 # Run the executable
-CMD [ "go", "run", "." ]
+CMD [ "go", "run", "./..." ]

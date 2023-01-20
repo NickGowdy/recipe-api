@@ -23,6 +23,9 @@ services:
       - database
     networks:
       - default
+    tty: true
+    volumes:
+      - .:/app
     ports:
     - "8080:8080"
 volumes:
