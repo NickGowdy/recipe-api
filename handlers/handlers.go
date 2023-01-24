@@ -14,7 +14,7 @@ import (
 func SetupRoutes() {
 	log.Println("some messaage")
 	r := mux.NewRouter()
-	r.HandleFunc("/recipe", HandleRecipes).Methods("GET")
+	r.HandleFunc("/recipe", HandleRecipes).Methods("GET", "POST")
 	r.HandleFunc("/recipe/{id}", HandleRecipe).Methods("GET")
 	r.HandleFunc("/health-check", HealthCheck).Methods("GET")
 	http.Handle("api/", r)
@@ -30,18 +30,47 @@ func HealthCheck(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandleRecipes(w http.ResponseWriter, r *http.Request) {
-	rs, err := repository.GetRecipes()
+	switch r.Method {
+	case "GET":
+		rs, err := repository.GetRecipes()
 
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		j, err := json.Marshal(rs)
+		if err != nil {
+			log.Print(err)
+		}
+		w.Write(j)
+	case "POST":
+		var recipeToSave repository.Recipe
+		if err := json.NewDecoder(r.Body).Decode(&recipeToSave); err != nil {
+			log.Print(err)
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		r, err := repository.InsertRecipe(&recipeToSave)
+		if err != nil {
+			log.Print(err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		j, err := json.Marshal(r)
+
+		if err != nil {
+			log.Print(err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		w.Write(j)
+	default:
+		w.WriteHeader(http.StatusMethodNotAllowed)
 	}
 
-	j, err := json.Marshal(rs)
-	if err != nil {
-		log.Print(err)
-	}
-	w.Write(j)
 }
 
 func HandleRecipe(w http.ResponseWriter, r *http.Request) {
@@ -69,6 +98,5 @@ func HandleRecipe(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-
 	w.Write(j)
 }
