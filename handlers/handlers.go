@@ -18,6 +18,7 @@ func SetupRoutes() {
 	r.HandleFunc("/recipe/{id}", GetRecipe).Methods("GET")
 	r.HandleFunc("/recipe", InsertRecipe).Methods("POST")
 	r.HandleFunc("/recipe/{id}", UpdateRecipe).Methods("PUT")
+	r.HandleFunc("/recipe/{id}", DeleteRecipe).Methods("DELETE")
 	r.HandleFunc("/health-check", HealthCheck).Methods("GET")
 	http.Handle("api/", r)
 	err := http.ListenAndServe(":8080", r)
@@ -105,6 +106,25 @@ func UpdateRecipe(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_, err = repository.UpdateRecipe(&recipeToSave, recipeId)
+	if err != nil {
+		log.Print(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func DeleteRecipe(w http.ResponseWriter, r *http.Request) {
+	recipeId, err := strconv.Atoi(mux.Vars(r)["id"])
+
+	if err != nil {
+		log.Print(err)
+		w.WriteHeader(http.StatusBadRequest)
+	}
+
+	_, err = repository.DeleteRecipe(recipeId)
+
 	if err != nil {
 		log.Print(err)
 		w.WriteHeader(http.StatusInternalServerError)

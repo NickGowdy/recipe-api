@@ -88,19 +88,6 @@ func InsertRecipe(nr *Recipe) (b bool, err error) {
 	return true, nil
 }
 
-func DeleteRecipe(recipeId int, accountid int) (d bool, err error) {
-	db := Database()
-
-	q := `DELETE FROM recipe WHERE id=$1 AND account_id=$2`
-	_, err = db.Exec(q, recipeId, accountid)
-
-	if err != nil {
-		log.Print(err)
-	}
-
-	return true, nil
-}
-
 func UpdateRecipe(er *Recipe, recipeid int) (d bool, err error) {
 	db := Database()
 
@@ -110,6 +97,19 @@ func UpdateRecipe(er *Recipe, recipeid int) (d bool, err error) {
 		WHERE id = $1;`
 
 	_, err = db.Exec(q, recipeid, er.RecipeName, er.RecipeSteps)
+	if err != nil {
+		log.Print(err)
+	}
+
+	return true, nil
+}
+
+func DeleteRecipe(recipeId int) (d bool, err error) {
+	db := Database()
+
+	q := `DELETE FROM recipe WHERE id=$1`
+	_, err = db.Exec(q, recipeId)
+
 	if err != nil {
 		log.Print(err)
 	}
