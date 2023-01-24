@@ -1,0 +1,73 @@
+package recipeDb
+
+import (
+	"database/sql"
+	"fmt"
+	"log"
+	"os"
+	"path"
+	"runtime"
+
+	_ "github.com/lib/pq"
+	"github.com/qustavo/dotsql"
+)
+
+type RecipeDb struct {
+	SqlDb *sql.DB
+}
+
+func NewRecipeDb() *RecipeDb {
+	psqlconn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+		os.Getenv("host"), os.Getenv("port"), os.Getenv("user"), os.Getenv("password"), os.Getenv("dbname"))
+
+	db, err := sql.Open("postgres", psqlconn)
+
+	if err != nil {
+		log.Panic(err)
+	}
+	return &RecipeDb{SqlDb: db}
+}
+
+func Migrate() {
+	db := NewRecipeDb()
+	dotSql := getDirectory()
+
+	fmt.Println(os.Getenv("APP_ENV"))
+	fmt.Println("Running migrations")
+	db.runScript(dotSql, "create-account-table")
+	db.runScript(dotSql, "create-recipe-table")
+	db.runScript(dotSql, "create-ingredient-table")
+	db.runScript(dotSql, "create-quantity_type-table")
+	db.runScript(dotSql, "create-ingredient_quantity_type-table")
+
+	// Seed data for dev environment
+	if os.Getenv("APP_ENV") == "development" {
+		fmt.Println("Seeding dev data")
+		db.runScript(dotSql, "insert-account")
+		db.runScript(dotSql, "insert-recipe")
+	}
+
+	// close database
+	defer db.SqlDb.Close()
+}
+
+func getDirectory() *dotsql.DotSql {
+	// get relative path with runtime.caller
+	_, b, _, _ := runtime.Caller(0)
+	relativePath := path.Join(path.Dir(b))
+
+	dot, err := dotsql.LoadFromFile(fmt.Sprintf("%s/init.sql", relativePath))
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return dot
+}
+
+func (db *RecipeDb) runScript(dot *dotsql.DotSql, name string) {
+	_, err := dot.Exec(db.SqlDb, name)
+	if err != nil {
+		log.Fatal(err)
+	}
+}

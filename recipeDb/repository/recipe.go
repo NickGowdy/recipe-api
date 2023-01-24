@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"log"
 	"time"
+
+	"github.com/recipe-api/recipeDb"
 )
 
 type Recipe struct {
@@ -17,10 +19,9 @@ type Recipe struct {
 	// IngredientQuantity []IngredientQuantityType `json:"ingredientQuantity"`
 }
 
-func GetRecipes() (*[]Recipe, error) {
-	db := Database()
+func GetRecipes(db *recipeDb.RecipeDb) (*[]Recipe, error) {
 
-	rows, err := db.Query("select * from recipe")
+	rows, err := db.SqlDb.Query("select * from recipe")
 	if err != nil {
 		log.Print(err)
 	}
@@ -52,10 +53,9 @@ func GetRecipes() (*[]Recipe, error) {
 	return &recipes, nil
 }
 
-func GetRecipe(recipeId int) (*Recipe, error) {
-	db := Database()
+func GetRecipe(db *recipeDb.RecipeDb, recipeId int) (*Recipe, error) {
 
-	row := db.QueryRow("SELECT * FROM recipe WHERE id=$1", recipeId)
+	row := db.SqlDb.QueryRow("SELECT * FROM recipe WHERE id=$1", recipeId)
 	var recipe Recipe
 
 	switch err := row.Scan(
@@ -75,11 +75,9 @@ func GetRecipe(recipeId int) (*Recipe, error) {
 	}
 }
 
-func InsertRecipe(nr *Recipe) (b bool, err error) {
-	db := Database()
-
+func InsertRecipe(db *recipeDb.RecipeDb, nr *Recipe) (b bool, err error) {
 	q := `INSERT INTO recipe ("account_id", "recipe_name", "recipe_steps", "created_on", "updated_on") VALUES($1, $2, $3, now(), now())`
-	_, err = db.Exec(q, nr.AccountId, nr.RecipeName, nr.RecipeSteps)
+	_, err = db.SqlDb.Exec(q, nr.AccountId, nr.RecipeName, nr.RecipeSteps)
 
 	if err != nil {
 		log.Print(err)
@@ -88,15 +86,13 @@ func InsertRecipe(nr *Recipe) (b bool, err error) {
 	return true, nil
 }
 
-func UpdateRecipe(er *Recipe, recipeid int) (d bool, err error) {
-	db := Database()
-
+func UpdateRecipe(db *recipeDb.RecipeDb, er *Recipe, recipeid int) (d bool, err error) {
 	q := `
 		UPDATE recipe
 		SET recipe_name = $2, recipe_steps = $3
 		WHERE id = $1;`
 
-	_, err = db.Exec(q, recipeid, er.RecipeName, er.RecipeSteps)
+	_, err = db.SqlDb.Exec(q, recipeid, er.RecipeName, er.RecipeSteps)
 	if err != nil {
 		log.Print(err)
 	}
@@ -104,11 +100,9 @@ func UpdateRecipe(er *Recipe, recipeid int) (d bool, err error) {
 	return true, nil
 }
 
-func DeleteRecipe(recipeId int) (d bool, err error) {
-	db := Database()
-
+func DeleteRecipe(db *recipeDb.RecipeDb, recipeId int) (d bool, err error) {
 	q := `DELETE FROM recipe WHERE id=$1`
-	_, err = db.Exec(q, recipeId)
+	_, err = db.SqlDb.Exec(q, recipeId)
 
 	if err != nil {
 		log.Print(err)
