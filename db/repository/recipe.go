@@ -38,7 +38,7 @@ func GetRecipes() (*[]Recipe, error) {
 			&r.CreatedOn,
 			&r.UpdatedOn)
 		if err != nil {
-			log.Fatal(err)
+			log.Print(err)
 		}
 
 		recipes = append(recipes, r)
@@ -46,7 +46,7 @@ func GetRecipes() (*[]Recipe, error) {
 	}
 	err = rows.Err()
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 
 	return &recipes, nil
@@ -82,7 +82,7 @@ func InsertRecipe(nr *Recipe) (b bool, err error) {
 	_, err = db.Exec(q, nr.AccountId, nr.RecipeName, nr.RecipeSteps)
 
 	if err != nil {
-		log.Panic(err)
+		log.Print(err)
 	}
 
 	return true, nil
@@ -95,30 +95,24 @@ func DeleteRecipe(recipeId int, accountid int) (d bool, err error) {
 	_, err = db.Exec(q, recipeId, accountid)
 
 	if err != nil {
-		log.Panic(err)
+		log.Print(err)
 	}
 
 	return true, nil
 }
 
-// func UpdateRecipe(er *models.Recipe, recipeid int, accountid int) (d bool) {
-// 	db := Database()
+func UpdateRecipe(er *Recipe, recipeid int) (d bool, err error) {
+	db := Database()
 
-// 	dr, _ := GetRecipe(recipeid, accountid)
+	q := `
+		UPDATE recipe
+		SET recipe_name = $2, recipe_steps = $3
+		WHERE id = $1;`
 
-// 	if dr.Id != recipeid && dr.AccountId != accountid {
-// 		return false
-// 	}
+	_, err = db.Exec(q, recipeid, er.RecipeName, er.RecipeSteps)
+	if err != nil {
+		log.Print(err)
+	}
 
-// 	q := `
-// 		UPDATE recipe
-// 		SET recipe_name = $3, recipe_steps = $4
-// 		WHERE id = $1 AND account_id = $2;`
-
-// 	_, err := db.Exec(q, recipeid, accountid, er.RecipeName, er.RecipeSteps)
-// 	if err != nil {
-// 		panic(err)
-// 	}
-
-// 	return true
-// }
+	return true, nil
+}

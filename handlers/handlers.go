@@ -14,8 +14,10 @@ import (
 func SetupRoutes() {
 	log.Println("some messaage")
 	r := mux.NewRouter()
-	r.HandleFunc("/recipe", HandleRecipes).Methods("GET", "POST")
-	r.HandleFunc("/recipe/{id}", HandleRecipe).Methods("GET")
+	r.HandleFunc("/recipe", GetRecipes).Methods("GET")
+	r.HandleFunc("/recipe/{id}", GetRecipe).Methods("GET")
+	r.HandleFunc("/recipe", InsertRecipe).Methods("POST")
+	r.HandleFunc("/recipe/{id}", UpdateRecipe).Methods("PUT")
 	r.HandleFunc("/health-check", HealthCheck).Methods("GET")
 	http.Handle("api/", r)
 	err := http.ListenAndServe(":8080", r)
@@ -29,54 +31,23 @@ func HealthCheck(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "API is up and running")
 }
 
-func HandleRecipes(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case "GET":
-		rs, err := repository.GetRecipes()
+func GetRecipes(w http.ResponseWriter, r *http.Request) {
+	rs, err := repository.GetRecipes()
 
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
-		j, err := json.Marshal(rs)
-		if err != nil {
-			log.Print(err)
-		}
-		w.Write(j)
-	case "POST":
-		var recipeToSave repository.Recipe
-		if err := json.NewDecoder(r.Body).Decode(&recipeToSave); err != nil {
-			log.Print(err)
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		r, err := repository.InsertRecipe(&recipeToSave)
-		if err != nil {
-			log.Print(err)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
-		j, err := json.Marshal(r)
-
-		if err != nil {
-			log.Print(err)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-		w.Write(j)
-	default:
-		w.WriteHeader(http.StatusMethodNotAllowed)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
+	j, err := json.Marshal(rs)
+	if err != nil {
+		log.Print(err)
+	}
+	w.Write(j)
 }
 
-func HandleRecipe(w http.ResponseWriter, r *http.Request) {
+func GetRecipe(w http.ResponseWriter, r *http.Request) {
 	recipeId, err := strconv.Atoi(mux.Vars(r)["id"])
-
-	log.Print(recipeId)
 
 	if err != nil {
 		log.Print(err)
@@ -99,4 +70,46 @@ func HandleRecipe(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Write(j)
+}
+
+func InsertRecipe(w http.ResponseWriter, r *http.Request) {
+	var recipeToSave repository.Recipe
+	if err := json.NewDecoder(r.Body).Decode(&recipeToSave); err != nil {
+		log.Print(err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	_, err := repository.InsertRecipe(&recipeToSave)
+	if err != nil {
+		log.Print(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
+}
+
+func UpdateRecipe(w http.ResponseWriter, r *http.Request) {
+	recipeId, err := strconv.Atoi(mux.Vars(r)["id"])
+
+	if err != nil {
+		log.Print(err)
+		w.WriteHeader(http.StatusBadRequest)
+	}
+	var recipeToSave repository.Recipe
+	if err := json.NewDecoder(r.Body).Decode(&recipeToSave); err != nil {
+		log.Print(err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	_, err = repository.UpdateRecipe(&recipeToSave, recipeId)
+	if err != nil {
+		log.Print(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 }
