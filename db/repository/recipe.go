@@ -75,31 +75,31 @@ func GetRecipe(recipeId int) (*Recipe, error) {
 	}
 }
 
-// func SaveRecipe(nr *models.Recipe) (b bool, err error) {
-// 	db := Database()
+func InsertRecipe(nr *Recipe) (b bool, err error) {
+	db := Database()
 
-// 	q := `INSERT INTO recipe ("account_id", "recipe_name", "recipe_steps", "created_on", "updated_on") VALUES($1, $2, $3, now(), now())`
-// 	_, err = db.Exec(q, nr.AccountId, nr.RecipeName, nr.RecipeSteps)
+	q := `INSERT INTO recipe ("account_id", "recipe_name", "recipe_steps", "created_on", "updated_on") VALUES($1, $2, $3, now(), now())`
+	_, err = db.Exec(q, nr.AccountId, nr.RecipeName, nr.RecipeSteps)
 
-// 	if err != nil {
-// 		log.Panic(err)
-// 	}
+	if err != nil {
+		log.Panic(err)
+	}
 
-// 	return true, nil
-// }
+	return true, nil
+}
 
-// func DeleteRecipe(recipeId int, accountid int) (d bool, err error) {
-// 	db := Database()
+func DeleteRecipe(recipeId int, accountid int) (d bool, err error) {
+	db := Database()
 
-// 	q := `DELETE FROM recipe WHERE id=$1 AND account_id=$2`
-// 	_, err = db.Exec(q, recipeId, accountid)
+	q := `DELETE FROM recipe WHERE id=$1 AND account_id=$2`
+	_, err = db.Exec(q, recipeId, accountid)
 
-// 	if err != nil {
-// 		log.Panic(err)
-// 	}
+	if err != nil {
+		log.Panic(err)
+	}
 
-// 	return true, nil
-// }
+	return true, nil
+}
 
 // func UpdateRecipe(er *models.Recipe, recipeid int, accountid int) (d bool) {
 // 	db := Database()
