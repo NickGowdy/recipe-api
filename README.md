@@ -14,9 +14,17 @@ This API is built with Golang and Postgres. It can be run locally using docker w
 
 To get a list of your recipes use:
 ```
-curl http://localhost:8080/api/accounts/{account_id}/recipes
+curl http://localhost:8080/recipes
 
 ```
+
+To get a specific recipe use:
+```
+curl http://localhost:8080/recipes/{id}
+
+```
+
+More to come later....
 
 
 
