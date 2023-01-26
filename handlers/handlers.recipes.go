@@ -67,7 +67,7 @@ func InsertRecipeHandler(db *recipeDb.RecipeDb) http.HandlerFunc {
 			return
 		}
 
-		_, err := repository.InsertRecipe(db, &recipeToSave)
+		id, err := repository.InsertRecipe(db, &recipeToSave)
 		if err != nil {
 			log.Print(err)
 			w.WriteHeader(http.StatusInternalServerError)
@@ -75,6 +75,14 @@ func InsertRecipeHandler(db *recipeDb.RecipeDb) http.HandlerFunc {
 		}
 
 		w.WriteHeader(http.StatusCreated)
+		j, err := json.Marshal(id)
+
+		if err != nil {
+			log.Print(err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		w.Write(j)
 	}
 	return http.HandlerFunc(fn)
 }
