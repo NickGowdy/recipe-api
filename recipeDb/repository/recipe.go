@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"time"
 
@@ -75,15 +76,29 @@ func GetRecipe(db *recipeDb.RecipeDb, recipeId int) (*Recipe, error) {
 	}
 }
 
-func InsertRecipe(db *recipeDb.RecipeDb, nr *Recipe) (b bool, err error) {
-	q := `INSERT INTO recipe ("account_id", "recipe_name", "recipe_steps", "created_on", "updated_on") VALUES($1, $2, $3, now(), now())`
-	_, err = db.SqlDb.Exec(q, nr.AccountId, nr.RecipeName, nr.RecipeSteps)
+func InsertRecipe(db *recipeDb.RecipeDb, nr *Recipe) (b int64, err error) {
+	var id int64
+	var cols = "(account_id, recipe_name, recipe_steps, created_on, updated_on)"
+	var values = "($1, $2, $3, now(), now())"
+
+	var query = fmt.Sprintf(
+		"INSERT INTO recipe %s VALUES %s RETURNING id",
+		cols, values,
+	)
+
+	if err := db.SqlDb.QueryRow(
+		query,
+		nr.AccountId, nr.RecipeName, nr.RecipeSteps,
+	).Scan(&id); err != nil {
+		panic(err)
+	}
 
 	if err != nil {
 		log.Print(err)
+		return 0, err
 	}
 
-	return true, nil
+	return id, nil
 }
 
 func UpdateRecipe(db *recipeDb.RecipeDb, er *Recipe, recipeid int) (d bool, err error) {
