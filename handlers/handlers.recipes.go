@@ -1,110 +1,129 @@
 package handlers
 
-// func HandleRecipe(w http.ResponseWriter, r *http.Request) {
-// 	switch r.Method {
-// 	case http.MethodGet:
-// 		{
-// 			urlPathSegments := strings.Split(r.URL.Path, "/")
-// 			accountId, err := strconv.Atoi(urlPathSegments[3])
-// 			if err != nil {
-// 				log.Print(err)
-// 				w.WriteHeader(http.StatusNotFound)
-// 				return
-// 			}
-// 			recipeId, err := strconv.Atoi(urlPathSegments[5])
-// 			if err != nil {
-// 				log.Print(err)
-// 				w.WriteHeader(http.StatusNotFound)
-// 				return
-// 			}
+import (
+	"encoding/json"
+	"log"
+	"net/http"
+	"strconv"
 
-// 			rs, err := repository.GetRecipe(recipeId, accountId)
+	"github.com/gorilla/mux"
+	"github.com/recipe-api/recipeDb"
+	"github.com/recipe-api/recipeDb/repository"
+)
 
-// 			if err != nil {
-// 				log.Print(err)
-// 				w.WriteHeader(http.StatusNotFound)
-// 				return
-// 			}
+func GetRecipesHandler(db *recipeDb.RecipeDb) http.HandlerFunc {
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		rs, err := repository.GetRecipes(db)
 
-// 			j, err := json.Marshal(rs)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 
-// 			if err != nil {
-// 				log.Print(err)
-// 				w.WriteHeader(http.StatusInternalServerError)
-// 				return
-// 			}
+		j, err := json.Marshal(rs)
+		if err != nil {
+			log.Print(err)
+		}
+		w.Write(j)
+	}
+	return http.HandlerFunc(fn)
+}
 
-// 			w.Write(j)
-// 		}
-// 	case http.MethodPost:
-// 		var nr models.Recipe
+func GetRecipeHandler(db *recipeDb.RecipeDb) http.HandlerFunc {
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		recipeId, err := strconv.Atoi(mux.Vars(r)["id"])
 
-// 		err := json.NewDecoder(r.Body).Decode(&nr)
+		if err != nil {
+			log.Print(err)
+			w.WriteHeader(http.StatusBadRequest)
+		}
 
-// 		if err != nil {
-// 			w.WriteHeader(http.StatusBadRequest)
-// 			return
-// 		}
+		rs, err := repository.GetRecipe(db, recipeId)
 
-// 		b, _ := repository.SaveRecipe(&nr)
+		if err != nil {
+			log.Print(err)
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
 
-// 		if b {
-// 			w.Write([]byte(strconv.FormatBool(b)))
-// 		}
-// 	case http.MethodDelete:
-// 		urlPathSegments := strings.Split(r.URL.Path, "/")
-// 		accountId, err := strconv.Atoi(urlPathSegments[3])
-// 		if err != nil {
-// 			log.Print(err)
-// 			w.WriteHeader(http.StatusNotFound)
-// 			return
-// 		}
-// 		recipeId, err := strconv.Atoi(urlPathSegments[5])
-// 		if err != nil {
-// 			log.Print(err)
-// 			w.WriteHeader(http.StatusNotFound)
-// 			return
-// 		}
+		j, err := json.Marshal(rs)
 
-// 		b, err := repository.DeleteRecipe(recipeId, accountId)
+		if err != nil {
+			log.Print(err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		w.Write(j)
+	}
+	return http.HandlerFunc(fn)
+}
 
-// 		if err != nil {
-// 			log.Print(err)
-// 			w.WriteHeader(http.StatusInternalServerError)
-// 			return
-// 		}
+func InsertRecipeHandler(db *recipeDb.RecipeDb) http.HandlerFunc {
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		var recipeToSave repository.Recipe
+		if err := json.NewDecoder(r.Body).Decode(&recipeToSave); err != nil {
+			log.Print(err)
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
 
-// 		w.Write([]byte(strconv.FormatBool(b)))
-// 	case http.MethodPut:
-// 		urlPathSegments := strings.Split(r.URL.Path, "/")
-// 		accountId, err := strconv.Atoi(urlPathSegments[3])
-// 		if err != nil {
-// 			log.Print(err)
-// 			w.WriteHeader(http.StatusNotFound)
-// 			return
-// 		}
-// 		recipeId, err := strconv.Atoi(urlPathSegments[5])
-// 		if err != nil {
-// 			log.Print(err)
-// 			w.WriteHeader(http.StatusNotFound)
-// 			return
-// 		}
-// 		var er models.Recipe
+		_, err := repository.InsertRecipe(db, &recipeToSave)
+		if err != nil {
+			log.Print(err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 
-// 		err = json.NewDecoder(r.Body).Decode(&er)
+		w.WriteHeader(http.StatusCreated)
+	}
+	return http.HandlerFunc(fn)
+}
 
-// 		if err != nil {
-// 			w.WriteHeader(http.StatusBadRequest)
-// 			return
-// 		}
+func UpdateRecipeHandler(db *recipeDb.RecipeDb) http.HandlerFunc {
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		recipeId, err := strconv.Atoi(mux.Vars(r)["id"])
 
-// 		b := repository.UpdateRecipe(&er, recipeId, accountId)
+		if err != nil {
+			log.Print(err)
+			w.WriteHeader(http.StatusBadRequest)
+		}
+		var recipeToSave repository.Recipe
+		if err := json.NewDecoder(r.Body).Decode(&recipeToSave); err != nil {
+			log.Print(err)
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
 
-// 		if !b {
-// 			w.WriteHeader(http.StatusInternalServerError)
-// 			return
-// 		}
+		_, err = repository.UpdateRecipe(db, &recipeToSave, recipeId)
+		if err != nil {
+			log.Print(err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 
-// 		w.Write([]byte(strconv.FormatBool(b)))
-// 	}
-// }
+		w.WriteHeader(http.StatusOK)
+	}
+	return http.HandlerFunc(fn)
+}
+
+func DeleteRecipeHandler(db *recipeDb.RecipeDb) http.HandlerFunc {
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		recipeId, err := strconv.Atoi(mux.Vars(r)["id"])
+
+		if err != nil {
+			log.Print(err)
+			w.WriteHeader(http.StatusBadRequest)
+		}
+
+		_, err = repository.DeleteRecipe(db, recipeId)
+
+		if err != nil {
+			log.Print(err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
+	}
+	return http.HandlerFunc(fn)
+}
