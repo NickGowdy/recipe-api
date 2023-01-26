@@ -109,6 +109,16 @@ func TestInsertRecipe(t *testing.T) {
 			0, recipe.Id)
 	}
 
+	if recipe.RecipeName != "Nick's recipe" {
+		t.Errorf("recipe id is wrong value: got %v want %v",
+			recipe.RecipeName, "Nick's recipe")
+	}
+
+	if recipe.RecipeSteps != "Some steps for Nick's recipe" {
+		t.Errorf("recipe id is wrong value: got %v want %v",
+			recipe.RecipeSteps, "Some steps for Nick's recipe")
+	}
+
 }
 
 func setupEnv() {
