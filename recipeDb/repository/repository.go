@@ -21,7 +21,7 @@ func NewRepository(db *recipeDb.RecipeDb) Repository {
 
 func (r *Repository) GetRecipes() (*[]models.Recipe, error) {
 
-	rows, err := r.db.SqlDb.Query("select * from recipe")
+	rows, err := r.db.SqlDb.Query("SELECT * FROM recipe")
 	if err != nil {
 		log.Print(err)
 	}
