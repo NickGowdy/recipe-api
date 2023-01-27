@@ -19,7 +19,7 @@ func NewRepository(db *recipeDb.RecipeDb) Repository {
 	}
 }
 
-func (r Repository) GetRecipes() (*[]models.Recipe, error) {
+func (r *Repository) GetRecipes() (*[]models.Recipe, error) {
 
 	rows, err := r.db.SqlDb.Query("select * from recipe")
 	if err != nil {
@@ -53,7 +53,7 @@ func (r Repository) GetRecipes() (*[]models.Recipe, error) {
 	return &recipes, nil
 }
 
-func (r Repository) GetRecipe(recipeId int) (*models.Recipe, error) {
+func (r *Repository) GetRecipe(recipeId int) (*models.Recipe, error) {
 
 	row := r.db.SqlDb.QueryRow("SELECT * FROM recipe WHERE id=$1", recipeId)
 	var recipe models.Recipe
@@ -75,7 +75,7 @@ func (r Repository) GetRecipe(recipeId int) (*models.Recipe, error) {
 	}
 }
 
-func (r Repository) InsertRecipe(nr *models.Recipe) (b int64, err error) {
+func (r *Repository) InsertRecipe(nr *models.Recipe) (b int64, err error) {
 	var id int64
 	var cols = "(account_id, recipe_name, recipe_steps, created_on, updated_on)"
 	var values = "($1, $2, $3, now(), now())"
@@ -100,7 +100,7 @@ func (r Repository) InsertRecipe(nr *models.Recipe) (b int64, err error) {
 	return id, nil
 }
 
-func (r Repository) UpdateRecipe(recipe *models.Recipe, recipeid int) (d bool, err error) {
+func (r *Repository) UpdateRecipe(recipe *models.Recipe, recipeid int) (d bool, err error) {
 	q := `
 		UPDATE recipe
 		SET recipe_name = $2, recipe_steps = $3
@@ -114,7 +114,7 @@ func (r Repository) UpdateRecipe(recipe *models.Recipe, recipeid int) (d bool, e
 	return true, nil
 }
 
-func (r Repository) DeleteRecipe(recipeId int) (d bool, err error) {
+func (r *Repository) DeleteRecipe(recipeId int) (d bool, err error) {
 	q := `DELETE FROM recipe WHERE id=$1`
 	_, err = r.db.SqlDb.Exec(q, recipeId)
 
