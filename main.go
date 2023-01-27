@@ -6,11 +6,9 @@ import (
 	"github.com/recipe-api/recipeDb/repository"
 )
 
-var db *recipeDb.RecipeDb
-
 func main() {
 	recipeDb.Migrate()
-	db = recipeDb.NewRecipeDb()
+	db := recipeDb.NewRecipeDb()
 	repo := repository.NewRepository(db)
 
 	handlers.SetupRoutes(&repo)
