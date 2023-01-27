@@ -10,7 +10,7 @@ import (
 )
 
 type Recipe struct {
-	Id          int       `json:"id"`
+	Id          int64     `json:"id"`
 	AccountId   int       `json:"accountId"`
 	RecipeName  string    `json:"recipeName"`
 	RecipeSteps string    `json:"recipeSteps"`
