@@ -11,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/gorilla/mux"
+	"github.com/recipe-api/models"
 	"github.com/recipe-api/recipeDb"
 	"github.com/recipe-api/recipeDb/repository"
 )
@@ -19,8 +20,9 @@ func TestGetRecipe(t *testing.T) {
 	setupEnv()
 	recipeId := setupFixture()
 
-	var recipe repository.Recipe
+	var recipe models.Recipe
 	db := recipeDb.NewRecipeDb()
+	repo := repository.NewRepository(db)
 
 	req, err := http.NewRequest("GET", fmt.Sprintf("/recipe/%v", recipeId), nil)
 
@@ -35,7 +37,7 @@ func TestGetRecipe(t *testing.T) {
 	req = mux.SetURLVars(req, vars)
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(GetRecipeHandler(db))
+	handler := http.HandlerFunc(GetRecipeHandler(&repo))
 
 	handler.ServeHTTP(rr, req)
 
@@ -67,7 +69,7 @@ func TestGetRecipe(t *testing.T) {
 func TestInsertRecipe(t *testing.T) {
 	setupEnv()
 
-	recipeToInsert := repository.Recipe{
+	recipeToInsert := models.Recipe{
 		Id:          0,
 		AccountId:   1,
 		RecipeName:  "Nick's other recipe",
@@ -75,6 +77,7 @@ func TestInsertRecipe(t *testing.T) {
 	}
 	body, _ := json.Marshal(recipeToInsert)
 	db := recipeDb.NewRecipeDb()
+	repo := repository.NewRepository(db)
 
 	req, err := http.NewRequest("POST", "/recipe", bytes.NewReader(body))
 	if err != nil {
@@ -82,7 +85,7 @@ func TestInsertRecipe(t *testing.T) {
 	}
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(InsertRecipeHandler(db))
+	handler := http.HandlerFunc(InsertRecipeHandler(&repo))
 
 	handler.ServeHTTP(rr, req)
 
@@ -107,7 +110,7 @@ func TestInsertRecipe(t *testing.T) {
 	req = mux.SetURLVars(req, vars)
 
 	rr = httptest.NewRecorder()
-	handler = http.HandlerFunc(GetRecipeHandler(db))
+	handler = http.HandlerFunc(GetRecipeHandler(&repo))
 
 	handler.ServeHTTP(rr, req)
 
@@ -116,7 +119,7 @@ func TestInsertRecipe(t *testing.T) {
 			status, http.StatusOK)
 	}
 
-	var recipe repository.Recipe
+	var recipe models.Recipe
 	json.NewDecoder(rr.Body).Decode(&recipe)
 
 	if recipe.Id == 0 {
@@ -141,10 +144,11 @@ func TestUpdateRecipe(t *testing.T) {
 	setupEnv()
 	recipeId := setupFixture()
 
-	var recipe repository.Recipe
+	var recipe models.Recipe
 	db := recipeDb.NewRecipeDb()
+	repo := repository.NewRepository(db)
 
-	recipeToUpdate := repository.Recipe{
+	recipeToUpdate := models.Recipe{
 		Id:          recipeId,
 		AccountId:   1,
 		RecipeName:  "This is the new name",
@@ -165,7 +169,7 @@ func TestUpdateRecipe(t *testing.T) {
 	req = mux.SetURLVars(req, vars)
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(UpdateRecipeHandler(db))
+	handler := http.HandlerFunc(UpdateRecipeHandler(&repo))
 
 	handler.ServeHTTP(rr, req)
 
@@ -177,7 +181,7 @@ func TestUpdateRecipe(t *testing.T) {
 	req = mux.SetURLVars(req, vars)
 
 	rr = httptest.NewRecorder()
-	handler = http.HandlerFunc(GetRecipeHandler(db))
+	handler = http.HandlerFunc(GetRecipeHandler(&repo))
 
 	handler.ServeHTTP(rr, req)
 
@@ -212,6 +216,7 @@ func TestDeleteRecipe(t *testing.T) {
 
 	req, err := http.NewRequest("DELETE", fmt.Sprintf("/recipe/%v", recipeId), nil)
 	db := recipeDb.NewRecipeDb()
+	repo := repository.NewRepository(db)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -223,7 +228,7 @@ func TestDeleteRecipe(t *testing.T) {
 	req = mux.SetURLVars(req, vars)
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(DeleteRecipeHandler(db))
+	handler := http.HandlerFunc(DeleteRecipeHandler(&repo))
 
 	handler.ServeHTTP(rr, req)
 
@@ -239,7 +244,7 @@ func TestDeleteRecipe(t *testing.T) {
 	req = mux.SetURLVars(req, vars)
 
 	rr = httptest.NewRecorder()
-	handler = http.HandlerFunc(GetRecipeHandler(db))
+	handler = http.HandlerFunc(GetRecipeHandler(&repo))
 
 	handler.ServeHTTP(rr, req)
 
@@ -258,7 +263,7 @@ func setupEnv() {
 }
 
 func setupFixture() int64 {
-	recipeToInsert := repository.Recipe{
+	recipeToInsert := models.Recipe{
 		Id:          0,
 		AccountId:   1,
 		RecipeName:  "Nick's recipe",
@@ -266,6 +271,7 @@ func setupFixture() int64 {
 	}
 	body, _ := json.Marshal(recipeToInsert)
 	db := recipeDb.NewRecipeDb()
+	repo := repository.NewRepository(db)
 
 	req, err := http.NewRequest("POST", "/recipe", bytes.NewReader(body))
 	if err != nil {
@@ -273,7 +279,7 @@ func setupFixture() int64 {
 	}
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(InsertRecipeHandler(db))
+	handler := http.HandlerFunc(InsertRecipeHandler(&repo))
 
 	handler.ServeHTTP(rr, req)
 
@@ -286,6 +292,7 @@ func setupFixture() int64 {
 func teardownFixture(recipeId int64) {
 	req, err := http.NewRequest("DELETE", fmt.Sprintf("/recipe/%v", recipeId), nil)
 	db := recipeDb.NewRecipeDb()
+	repo := repository.NewRepository(db)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -297,7 +304,7 @@ func teardownFixture(recipeId int64) {
 	req = mux.SetURLVars(req, vars)
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(DeleteRecipeHandler(db))
+	handler := http.HandlerFunc(DeleteRecipeHandler(&repo))
 
 	handler.ServeHTTP(rr, req)
 

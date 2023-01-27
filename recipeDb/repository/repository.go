@@ -4,34 +4,33 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"time"
 
+	"github.com/recipe-api/models"
 	"github.com/recipe-api/recipeDb"
 )
 
-type Recipe struct {
-	Id          int64     `json:"id"`
-	AccountId   int       `json:"accountId"`
-	RecipeName  string    `json:"recipeName"`
-	RecipeSteps string    `json:"recipeSteps"`
-	CreatedOn   time.Time `json:"createdOn"`
-	UpdatedOn   time.Time `json:"updatedOn"`
-	// TODO: implement this later.
-	// IngredientQuantity []IngredientQuantityType `json:"ingredientQuantity"`
+type Repository struct {
+	db *recipeDb.RecipeDb
 }
 
-func GetRecipes(db *recipeDb.RecipeDb) (*[]Recipe, error) {
+func NewRepository(db *recipeDb.RecipeDb) Repository {
+	return Repository{
+		db: db,
+	}
+}
 
-	rows, err := db.SqlDb.Query("select * from recipe")
+func (r Repository) GetRecipes() (*[]models.Recipe, error) {
+
+	rows, err := r.db.SqlDb.Query("select * from recipe")
 	if err != nil {
 		log.Print(err)
 	}
 	defer rows.Close()
 
-	var recipes []Recipe
+	var recipes []models.Recipe
 
 	for rows.Next() {
-		var r Recipe
+		var r models.Recipe
 		err := rows.Scan(
 			&r.Id,
 			&r.AccountId,
@@ -54,10 +53,10 @@ func GetRecipes(db *recipeDb.RecipeDb) (*[]Recipe, error) {
 	return &recipes, nil
 }
 
-func GetRecipe(db *recipeDb.RecipeDb, recipeId int) (*Recipe, error) {
+func (r Repository) GetRecipe(recipeId int) (*models.Recipe, error) {
 
-	row := db.SqlDb.QueryRow("SELECT * FROM recipe WHERE id=$1", recipeId)
-	var recipe Recipe
+	row := r.db.SqlDb.QueryRow("SELECT * FROM recipe WHERE id=$1", recipeId)
+	var recipe models.Recipe
 
 	switch err := row.Scan(
 		&recipe.Id,
@@ -76,7 +75,7 @@ func GetRecipe(db *recipeDb.RecipeDb, recipeId int) (*Recipe, error) {
 	}
 }
 
-func InsertRecipe(db *recipeDb.RecipeDb, nr *Recipe) (b int64, err error) {
+func (r Repository) InsertRecipe(nr *models.Recipe) (b int64, err error) {
 	var id int64
 	var cols = "(account_id, recipe_name, recipe_steps, created_on, updated_on)"
 	var values = "($1, $2, $3, now(), now())"
@@ -86,7 +85,7 @@ func InsertRecipe(db *recipeDb.RecipeDb, nr *Recipe) (b int64, err error) {
 		cols, values,
 	)
 
-	if err := db.SqlDb.QueryRow(
+	if err := r.db.SqlDb.QueryRow(
 		query,
 		nr.AccountId, nr.RecipeName, nr.RecipeSteps,
 	).Scan(&id); err != nil {
@@ -101,13 +100,13 @@ func InsertRecipe(db *recipeDb.RecipeDb, nr *Recipe) (b int64, err error) {
 	return id, nil
 }
 
-func UpdateRecipe(db *recipeDb.RecipeDb, er *Recipe, recipeid int) (d bool, err error) {
+func (r Repository) UpdateRecipe(recipe *models.Recipe, recipeid int) (d bool, err error) {
 	q := `
 		UPDATE recipe
 		SET recipe_name = $2, recipe_steps = $3
 		WHERE id = $1;`
 
-	_, err = db.SqlDb.Exec(q, recipeid, er.RecipeName, er.RecipeSteps)
+	_, err = r.db.SqlDb.Exec(q, recipeid, recipe.RecipeName, recipe.RecipeSteps)
 	if err != nil {
 		log.Print(err)
 	}
@@ -115,9 +114,9 @@ func UpdateRecipe(db *recipeDb.RecipeDb, er *Recipe, recipeid int) (d bool, err 
 	return true, nil
 }
 
-func DeleteRecipe(db *recipeDb.RecipeDb, recipeId int) (d bool, err error) {
+func (r Repository) DeleteRecipe(recipeId int) (d bool, err error) {
 	q := `DELETE FROM recipe WHERE id=$1`
-	_, err = db.SqlDb.Exec(q, recipeId)
+	_, err = r.db.SqlDb.Exec(q, recipeId)
 
 	if err != nil {
 		log.Print(err)

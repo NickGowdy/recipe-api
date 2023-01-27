@@ -6,17 +6,17 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/recipe-api/recipeDb"
+	"github.com/recipe-api/recipeDb/repository"
 )
 
-func SetupRoutes(db *recipeDb.RecipeDb) {
+func SetupRoutes(repo *repository.Repository) {
 	log.Println("some messaage")
 	r := mux.NewRouter()
-	r.HandleFunc("/recipe", GetRecipesHandler(db)).Methods("GET")
-	r.HandleFunc("/recipe/{id}", GetRecipeHandler(db)).Methods("GET")
-	r.HandleFunc("/recipe", InsertRecipeHandler(db)).Methods("POST")
-	r.HandleFunc("/recipe/{id}", UpdateRecipeHandler(db)).Methods("PUT")
-	r.HandleFunc("/recipe/{id}", DeleteRecipeHandler(db)).Methods("DELETE")
+	r.HandleFunc("/recipe", GetRecipesHandler(repo)).Methods("GET")
+	r.HandleFunc("/recipe/{id}", GetRecipeHandler(repo)).Methods("GET")
+	r.HandleFunc("/recipe", InsertRecipeHandler(repo)).Methods("POST")
+	r.HandleFunc("/recipe/{id}", UpdateRecipeHandler(repo)).Methods("PUT")
+	r.HandleFunc("/recipe/{id}", DeleteRecipeHandler(repo)).Methods("DELETE")
 
 	r.HandleFunc("/health-check", HealthCheck).Methods("GET")
 
