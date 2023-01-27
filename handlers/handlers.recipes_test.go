@@ -23,6 +23,7 @@ func TestGetRecipe(t *testing.T) {
 	db := recipeDb.NewRecipeDb()
 
 	req, err := http.NewRequest("GET", fmt.Sprintf("/recipe/%v", recipeId), nil)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -59,6 +60,8 @@ func TestGetRecipe(t *testing.T) {
 		t.Errorf("recipe id is wrong value: got %v want %v",
 			recipe.RecipeSteps, "Some steps for Nick's recipe")
 	}
+
+	teardownFixture(recipeId)
 }
 
 func TestInsertRecipe(t *testing.T) {
@@ -93,12 +96,12 @@ func TestInsertRecipe(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	var id int64
+	var recipeId int64
 
-	json.NewDecoder(rr.Body).Decode(&id)
+	json.NewDecoder(rr.Body).Decode(&recipeId)
 
 	vars := map[string]string{
-		"id": fmt.Sprint(id),
+		"id": fmt.Sprint(recipeId),
 	}
 
 	req = mux.SetURLVars(req, vars)
@@ -123,14 +126,127 @@ func TestInsertRecipe(t *testing.T) {
 
 	if recipe.RecipeName != recipeToInsert.RecipeName {
 		t.Errorf("recipe id is wrong value: got %v want %v",
-			recipe.RecipeName, "Nick's recipe")
+			recipe.RecipeName, recipeToInsert.RecipeName)
 	}
 
 	if recipe.RecipeSteps != recipeToInsert.RecipeSteps {
 		t.Errorf("recipe id is wrong value: got %v want %v",
-			recipe.RecipeSteps, "Some steps for Nick's recipe")
+			recipe.RecipeSteps, recipeToInsert.RecipeSteps)
 	}
 
+	teardownFixture(recipeId)
+}
+
+func TestUpdateRecipe(t *testing.T) {
+	setupEnv()
+	recipeId := setupFixture()
+
+	var recipe repository.Recipe
+	db := recipeDb.NewRecipeDb()
+
+	recipeToUpdate := repository.Recipe{
+		Id:          recipeId,
+		AccountId:   1,
+		RecipeName:  "This is the new name",
+		RecipeSteps: "These are the new steps",
+	}
+
+	body, _ := json.Marshal(recipeToUpdate)
+
+	req, err := http.NewRequest("PUT", fmt.Sprintf("/recipe/%v", recipeId), bytes.NewReader(body))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	vars := map[string]string{
+		"id": fmt.Sprint(recipeId),
+	}
+
+	req = mux.SetURLVars(req, vars)
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(UpdateRecipeHandler(db))
+
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusOK)
+	}
+
+	req = mux.SetURLVars(req, vars)
+
+	rr = httptest.NewRecorder()
+	handler = http.HandlerFunc(GetRecipeHandler(db))
+
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusOK)
+	}
+
+	json.NewDecoder(rr.Body).Decode(&recipe)
+
+	if recipe.Id != recipeId {
+		t.Errorf("recipe id is wrong value: got %v want %v",
+			recipe.Id, 1)
+	}
+
+	if recipe.RecipeName != recipeToUpdate.RecipeName {
+		t.Errorf("recipe id is wrong value: got %v want %v",
+			recipe.RecipeName, recipeToUpdate.RecipeName)
+	}
+
+	if recipe.RecipeSteps != recipeToUpdate.RecipeSteps {
+		t.Errorf("recipe id is wrong value: got %v want %v",
+			recipe.RecipeSteps, recipeToUpdate.RecipeSteps)
+	}
+
+	teardownFixture(recipeId)
+}
+
+func TestDeleteRecipe(t *testing.T) {
+	setupEnv()
+	recipeId := setupFixture()
+
+	req, err := http.NewRequest("DELETE", fmt.Sprintf("/recipe/%v", recipeId), nil)
+	db := recipeDb.NewRecipeDb()
+	if err != nil {
+		log.Panic(err)
+	}
+
+	vars := map[string]string{
+		"id": fmt.Sprint(recipeId),
+	}
+
+	req = mux.SetURLVars(req, vars)
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(DeleteRecipeHandler(db))
+
+	handler.ServeHTTP(rr, req)
+
+	if rr.Result().StatusCode != 200 {
+		fmt.Printf("error expected: %v but got %v", 200, rr.Result().StatusCode)
+	}
+
+	req, err = http.NewRequest("GET", fmt.Sprintf("/recipe/%v", recipeId), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	req = mux.SetURLVars(req, vars)
+
+	rr = httptest.NewRecorder()
+	handler = http.HandlerFunc(GetRecipeHandler(db))
+
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusNotFound {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusOK)
+	}
 }
 
 func setupEnv() {
@@ -165,4 +281,27 @@ func setupFixture() int64 {
 
 	json.NewDecoder(rr.Body).Decode(&id)
 	return id
+}
+
+func teardownFixture(recipeId int64) {
+	req, err := http.NewRequest("DELETE", fmt.Sprintf("/recipe/%v", recipeId), nil)
+	db := recipeDb.NewRecipeDb()
+	if err != nil {
+		log.Panic(err)
+	}
+
+	vars := map[string]string{
+		"id": fmt.Sprint(recipeId),
+	}
+
+	req = mux.SetURLVars(req, vars)
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(DeleteRecipeHandler(db))
+
+	handler.ServeHTTP(rr, req)
+
+	if rr.Result().StatusCode != 200 {
+		fmt.Printf("error with teardown fixture expected: %v but got %v", 200, rr.Result().StatusCode)
+	}
 }
