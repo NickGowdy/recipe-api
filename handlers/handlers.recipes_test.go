@@ -13,7 +13,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/recipe-api/models"
 	"github.com/recipe-api/recipeDb"
-	"github.com/recipe-api/recipeDb/repository"
+	"github.com/recipe-api/repository"
 )
 
 func TestGetRecipe(t *testing.T) {
@@ -22,7 +22,7 @@ func TestGetRecipe(t *testing.T) {
 
 	var recipe models.Recipe
 	db := recipeDb.NewRecipeDb()
-	repo := repository.NewRepository(db)
+	repo := repository.NewRecipeRepository(db)
 
 	req, err := http.NewRequest("GET", fmt.Sprintf("/recipe/%v", recipeId), nil)
 
@@ -77,7 +77,7 @@ func TestInsertRecipe(t *testing.T) {
 	}
 	body, _ := json.Marshal(recipeToInsert)
 	db := recipeDb.NewRecipeDb()
-	repo := repository.NewRepository(db)
+	repo := repository.NewRecipeRepository(db)
 
 	req, err := http.NewRequest("POST", "/recipe", bytes.NewReader(body))
 	if err != nil {
@@ -146,7 +146,7 @@ func TestUpdateRecipe(t *testing.T) {
 
 	var recipe models.Recipe
 	db := recipeDb.NewRecipeDb()
-	repo := repository.NewRepository(db)
+	repo := repository.NewRecipeRepository(db)
 
 	recipeToUpdate := models.Recipe{
 		Id:          recipeId,
@@ -216,7 +216,7 @@ func TestDeleteRecipe(t *testing.T) {
 
 	req, err := http.NewRequest("DELETE", fmt.Sprintf("/recipe/%v", recipeId), nil)
 	db := recipeDb.NewRecipeDb()
-	repo := repository.NewRepository(db)
+	repo := repository.NewRecipeRepository(db)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -271,7 +271,7 @@ func setupFixture() int64 {
 	}
 	body, _ := json.Marshal(recipeToInsert)
 	db := recipeDb.NewRecipeDb()
-	repo := repository.NewRepository(db)
+	repo := repository.NewRecipeRepository(db)
 
 	req, err := http.NewRequest("POST", "/recipe", bytes.NewReader(body))
 	if err != nil {
@@ -292,7 +292,8 @@ func setupFixture() int64 {
 func teardownFixture(recipeId int64) {
 	req, err := http.NewRequest("DELETE", fmt.Sprintf("/recipe/%v", recipeId), nil)
 	db := recipeDb.NewRecipeDb()
-	repo := repository.NewRepository(db)
+	repo := repository.NewRecipeRepository(db)
+
 	if err != nil {
 		log.Panic(err)
 	}

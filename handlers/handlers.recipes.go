@@ -8,10 +8,10 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/recipe-api/models"
-	"github.com/recipe-api/recipeDb/repository"
+	"github.com/recipe-api/repository"
 )
 
-func GetRecipesHandler(repo *repository.Repository) http.HandlerFunc {
+func GetRecipesHandler(repo *repository.RecipeRepository) http.HandlerFunc {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		rs, err := repo.GetRecipes()
 
@@ -29,7 +29,7 @@ func GetRecipesHandler(repo *repository.Repository) http.HandlerFunc {
 	return http.HandlerFunc(fn)
 }
 
-func GetRecipeHandler(repo *repository.Repository) http.HandlerFunc {
+func GetRecipeHandler(repo *repository.RecipeRepository) http.HandlerFunc {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		recipeId, err := strconv.Atoi(mux.Vars(r)["id"])
 
@@ -58,7 +58,7 @@ func GetRecipeHandler(repo *repository.Repository) http.HandlerFunc {
 	return http.HandlerFunc(fn)
 }
 
-func InsertRecipeHandler(repo *repository.Repository) http.HandlerFunc {
+func InsertRecipeHandler(repo *repository.RecipeRepository) http.HandlerFunc {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		var recipeToSave models.Recipe
 		if err := json.NewDecoder(r.Body).Decode(&recipeToSave); err != nil {
@@ -87,7 +87,7 @@ func InsertRecipeHandler(repo *repository.Repository) http.HandlerFunc {
 	return http.HandlerFunc(fn)
 }
 
-func UpdateRecipeHandler(repo *repository.Repository) http.HandlerFunc {
+func UpdateRecipeHandler(repo *repository.RecipeRepository) http.HandlerFunc {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		recipeId, err := strconv.Atoi(mux.Vars(r)["id"])
 
@@ -114,7 +114,7 @@ func UpdateRecipeHandler(repo *repository.Repository) http.HandlerFunc {
 	return http.HandlerFunc(fn)
 }
 
-func DeleteRecipeHandler(repo *repository.Repository) http.HandlerFunc {
+func DeleteRecipeHandler(repo *repository.RecipeRepository) http.HandlerFunc {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		recipeId, err := strconv.Atoi(mux.Vars(r)["id"])
 

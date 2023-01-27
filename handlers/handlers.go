@@ -6,10 +6,10 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/recipe-api/recipeDb/repository"
+	"github.com/recipe-api/repository"
 )
 
-func SetupRoutes(repo *repository.Repository) {
+func SetupRoutes(repo *repository.RecipeRepository) {
 	log.Println("some messaage")
 	r := mux.NewRouter()
 	r.HandleFunc("/recipe", GetRecipesHandler(repo)).Methods("GET")
