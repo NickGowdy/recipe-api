@@ -12,6 +12,9 @@ import (
 func SetupRoutes(repo *repository.RecipeRepository) {
 	log.Println("some messaage")
 	r := mux.NewRouter()
+
+	r.HandleFunc("/login", PostLoginHandler(repo)).Methods("POST")
+
 	r.HandleFunc("/recipe", GetRecipesHandler(repo)).Methods("GET")
 	r.HandleFunc("/recipe/{id}", GetRecipeHandler(repo)).Methods("GET")
 	r.HandleFunc("/recipe", InsertRecipeHandler(repo)).Methods("POST")
