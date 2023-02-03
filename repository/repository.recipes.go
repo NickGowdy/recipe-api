@@ -147,9 +147,7 @@ func (r *RecipeRepository) InsertRecipeUser(firstname *string, lastname *string,
 }
 
 func (r *RecipeRepository) GetRecipeUser(email string, password string) (*models.RecipeUser, error) {
-	fmt.Printf("Username is %s and password is %s", email, password)
 	row := r.db.SqlDb.QueryRow("SELECT * FROM recipe_user WHERE email=$1 AND password=$2", email, password)
-	fmt.Println(row)
 	var ru models.RecipeUser
 
 	switch err := row.Scan(
@@ -165,6 +163,23 @@ func (r *RecipeRepository) GetRecipeUser(email string, password string) (*models
 		return nil, nil
 	case nil:
 		return &ru, nil
+	default:
+		panic(err)
+	}
+}
+
+func (r *RecipeRepository) GetRecipeUserPwd(email string) (string, error) {
+	row := r.db.SqlDb.QueryRow("SELECT password FROM recipe_user WHERE email=$1", email)
+
+	var ru models.RecipeUser
+
+	switch err := row.Scan(
+		&ru.Password,
+	); err {
+	case sql.ErrNoRows:
+		return "", nil
+	case nil:
+		return ru.Password, nil
 	default:
 		panic(err)
 	}

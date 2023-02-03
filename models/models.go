@@ -28,7 +28,7 @@ type RecipeUser struct {
 }
 
 type Credentials struct {
-	Email    string `json:"username"`
+	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
