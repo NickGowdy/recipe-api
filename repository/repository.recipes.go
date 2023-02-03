@@ -125,7 +125,7 @@ func (r *RecipeRepository) DeleteRecipe(recipeId int) (d bool, err error) {
 	return true, nil
 }
 
-func (r *RecipeRepository) InsertRecipeUser(reg *models.Register) (b int64, err error) {
+func (r *RecipeRepository) InsertRecipeUser(firstname *string, lastname *string, email *string, hashedPwd *string) (b int64, err error) {
 	var id int64
 	var cols = "(first_name, last_name, email, password, created_on, updated_on)"
 	var values = "($1, $2, $3, $4, now(), now())"
@@ -137,7 +137,7 @@ func (r *RecipeRepository) InsertRecipeUser(reg *models.Register) (b int64, err 
 
 	if err := r.db.SqlDb.QueryRow(
 		query,
-		reg.Firstname, reg.Lastname, reg.Email, reg.Password,
+		firstname, lastname, email, hashedPwd,
 	).Scan(&id); err != nil {
 		log.Print(err)
 		return 0, err

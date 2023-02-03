@@ -7,6 +7,7 @@ import (
 
 	"github.com/recipe-api/models"
 	"github.com/recipe-api/repository"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func PostLoginHandler(repo *repository.RecipeRepository) http.HandlerFunc {
@@ -55,7 +56,15 @@ func PostRegisterHandler(repo *repository.RecipeRepository) http.HandlerFunc {
 			return
 		}
 
-		m, err := repo.InsertRecipeUser(&register)
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(register.Password), 8)
+		if err != nil {
+			log.Print(err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		hashedPasswordStr := string(hashedPassword)
+		m, err := repo.InsertRecipeUser(&register.Firstname, &register.Lastname, &register.Email, &hashedPasswordStr)
 
 		if err != nil {
 			log.Print(err)
