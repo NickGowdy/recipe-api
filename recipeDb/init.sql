@@ -1,6 +1,3 @@
--- name: enable-pgcrypto
-CREATE EXTENSION IF NOT EXISTS pgcrypto;
-
 -- name: create-recipe_user-table
 CREATE TABLE IF NOT EXISTS recipe_user (
   id INTEGER PRIMARY KEY generated always as identity,
@@ -47,55 +44,3 @@ CREATE TABLE IF NOT EXISTS ingredient_quantity_type (
   created_on TIMESTAMP NOT NULL,
   updated_on TIMESTAMP NOT NULL
 );
-
---name: insert-recipe_user
-INSERT INTO
-  recipe_user (
-    first_name,
-    last_name,
-    email,
-    password,
-    created_on,
-    updated_on
-  )
-SELECT
-  'John',
-  'Smith',
-  'johnsmith@gmail.com',
-  crypt('testpassword', gen_salt('bf')),
-  now(),
-  now()
-WHERE
-  NOT EXISTS (
-    SELECT
-      id
-    FROM
-      recipe_user
-    WHERE
-      id = 1
-  );
-
---name: insert-recipe
-INSERT INTO
-  recipe (
-    recipe_user_id,
-    recipe_name,
-    recipe_steps,
-    created_on,
-    updated_on
-  )
-SELECT
-  1,
-  'Lasagna',
-  'Some steps to make Lasagna',
-  now(),
-  now()
-WHERE
-  NOT EXISTS (
-    SELECT
-      id
-    FROM
-      recipe
-    WHERE
-      id = 1
-  );

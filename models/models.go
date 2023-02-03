@@ -18,12 +18,25 @@ type Recipe struct {
 }
 
 type RecipeUser struct {
+	Id        int64     `json:"id"`
 	Firstname string    `json:"firstname"`
 	Lastname  string    `json:"lastname"`
 	Email     string    `json:"email"`
 	Password  string    `json:"password"`
 	CreatedOn time.Time `json:"createdOn"`
 	UpdatedOn time.Time `json:"updatedOn"`
+}
+
+type Credentials struct {
+	Email    string `json:"username"`
+	Password string `json:"password"`
+}
+
+type Register struct {
+	Firstname string `json:"firstname"`
+	Lastname  string `json:"lastname"`
+	Email     string `json:"email"`
+	Password  string `json:"password"`
 }
 
 type Ingredient struct {

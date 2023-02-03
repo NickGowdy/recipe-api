@@ -125,20 +125,52 @@ func (r *RecipeRepository) DeleteRecipe(recipeId int) (d bool, err error) {
 	return true, nil
 }
 
-func (r *RecipeRepository) GetUser(email string, password string) (*models.RecipeUser, error) {
-	row := r.db.SqlDb.QueryRow("SELECT * FROM User WHERE email=$1 AND password=$@", email, password)
-	var user models.RecipeUser
+func (r *RecipeRepository) InsertRecipeUser(reg *models.Register) (b int64, err error) {
+	var id int64
+	var cols = "(first_name, last_name, email, password, created_on, updated_on)"
+	var values = "($1, $2, $3, $4, now(), now())"
+
+	var query = fmt.Sprintf(
+		"INSERT INTO recipe_user %s VALUES %s RETURNING id",
+		cols, values,
+	)
+
+	fmt.Println(query)
+
+	if err := r.db.SqlDb.QueryRow(
+		query,
+		reg.Firstname, reg.Lastname, reg.Email, reg.Password,
+	).Scan(&id); err != nil {
+		panic(err)
+	}
+
+	if err != nil {
+		log.Print(err)
+		return 0, err
+	}
+
+	return id, nil
+}
+
+func (r *RecipeRepository) GetRecipeUser(email string, password string) (*models.RecipeUser, error) {
+	fmt.Printf("Username is %s and password is %s", email, password)
+	row := r.db.SqlDb.QueryRow("SELECT * FROM recipe_user WHERE email=$1 AND password=$2", email, password)
+	fmt.Println(row)
+	var ru models.RecipeUser
 
 	switch err := row.Scan(
-		&user.Email,
-		&user.Password,
-		&user.CreatedOn,
-		&user.UpdatedOn,
+		&ru.Id,
+		&ru.Firstname,
+		&ru.Password,
+		&ru.Email,
+		&ru.Password,
+		&ru.CreatedOn,
+		&ru.UpdatedOn,
 	); err {
 	case sql.ErrNoRows:
-		return nil, err
+		return nil, nil
 	case nil:
-		return &user, nil
+		return &ru, nil
 	default:
 		panic(err)
 	}

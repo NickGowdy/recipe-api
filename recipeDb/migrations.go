@@ -16,19 +16,11 @@ func Migrate() {
 
 	fmt.Println(os.Getenv("APP_ENV"))
 	fmt.Println("Running migrations")
-	db.runScript(dotSql, "enable-pgcrypto")
 	db.runScript(dotSql, "create-recipe_user-table")
 	db.runScript(dotSql, "create-recipe-table")
 	db.runScript(dotSql, "create-ingredient-table")
 	db.runScript(dotSql, "create-quantity_type-table")
 	db.runScript(dotSql, "create-ingredient_quantity_type-table")
-
-	// Seed data for dev environment
-	if os.Getenv("APP_ENV") == "development" {
-		fmt.Println("Seeding dev data")
-		db.runScript(dotSql, "insert-recipe_user")
-		db.runScript(dotSql, "insert-recipe")
-	}
 
 	// close database
 	defer db.SqlDb.Close()

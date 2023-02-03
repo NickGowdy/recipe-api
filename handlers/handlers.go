@@ -13,6 +13,7 @@ func SetupRoutes(repo *repository.RecipeRepository) {
 	log.Println("some messaage")
 	r := mux.NewRouter()
 
+	r.HandleFunc("/register", PostRegisterHandler(repo)).Methods("POST")
 	r.HandleFunc("/login", PostLoginHandler(repo)).Methods("POST")
 
 	r.HandleFunc("/recipe", GetRecipesHandler(repo)).Methods("GET")
