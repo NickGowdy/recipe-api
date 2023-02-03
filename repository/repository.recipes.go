@@ -135,16 +135,10 @@ func (r *RecipeRepository) InsertRecipeUser(reg *models.Register) (b int64, err 
 		cols, values,
 	)
 
-	fmt.Println(query)
-
 	if err := r.db.SqlDb.QueryRow(
 		query,
 		reg.Firstname, reg.Lastname, reg.Email, reg.Password,
 	).Scan(&id); err != nil {
-		panic(err)
-	}
-
-	if err != nil {
 		log.Print(err)
 		return 0, err
 	}

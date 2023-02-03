@@ -59,7 +59,7 @@ func PostRegisterHandler(repo *repository.RecipeRepository) http.HandlerFunc {
 
 		if err != nil {
 			log.Print(err)
-			w.WriteHeader(http.StatusNotFound)
+			w.WriteHeader(http.StatusUnprocessableEntity)
 			return
 		}
 		j, err := json.Marshal(&m)
