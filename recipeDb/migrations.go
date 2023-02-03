@@ -16,6 +16,7 @@ func Migrate() {
 
 	fmt.Println(os.Getenv("APP_ENV"))
 	fmt.Println("Running migrations")
+	db.runScript(dotSql, "enable-pgcrypto")
 	db.runScript(dotSql, "create-recipe_user-table")
 	db.runScript(dotSql, "create-recipe-table")
 	db.runScript(dotSql, "create-ingredient-table")

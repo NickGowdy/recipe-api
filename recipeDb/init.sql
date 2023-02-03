@@ -1,10 +1,13 @@
+-- name: enable-pgcrypto
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
 -- name: create-recipe_user-table
 CREATE TABLE IF NOT EXISTS recipe_user (
   id INTEGER PRIMARY KEY generated always as identity,
   first_name VARCHAR(45) NOT NULL,
   last_name VARCHAR(45) NOT NULL,
   email VARCHAR(255) NOT NULL,
-  password VARCHAR(45) NOT NULL,
+  password TEXT NOT NULL,
   created_on TIMESTAMP NOT NULL,
   updated_on TIMESTAMP NOT NULL
 );
@@ -59,7 +62,7 @@ SELECT
   'John',
   'Smith',
   'johnsmith@gmail.com',
-  'testpassword',
+  crypt('testpassword', gen_salt('bf')),
   now(),
   now()
 WHERE
