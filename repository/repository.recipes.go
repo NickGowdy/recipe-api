@@ -125,9 +125,9 @@ func (r *RecipeRepository) DeleteRecipe(recipeId int) (d bool, err error) {
 	return true, nil
 }
 
-func (r *RecipeRepository) GetUser(email string, password string) (*models.User, error) {
+func (r *RecipeRepository) GetUser(email string, password string) (*models.RecipeUser, error) {
 	row := r.db.SqlDb.QueryRow("SELECT * FROM User WHERE email=$1 AND password=$@", email, password)
-	var user models.User
+	var user models.RecipeUser
 
 	switch err := row.Scan(
 		&user.Email,
