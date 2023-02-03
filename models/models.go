@@ -17,16 +17,9 @@ type Recipe struct {
 	// IngredientQuantity []IngredientQuantityType `json:"ingredientQuantity"`
 }
 
-type Account struct {
-	Id        int       `json:"id"`
+type RecipeUser struct {
 	Firstname string    `json:"firstname"`
 	Lastname  string    `json:"lastname"`
-	CreatedOn time.Time `json:"createdOn"`
-	UpdatedOn time.Time `json:"updatedOn"`
-	// Recipes   []Recipe  `json:"recipes"`
-}
-
-type User struct {
 	Email     string    `json:"email"`
 	Password  string    `json:"password"`
 	CreatedOn time.Time `json:"createdOn"`
@@ -58,7 +51,7 @@ type IngredientQuantityType struct {
 	UpdatedOn      time.Time    `json:"updatedOn"`
 }
 
-func (u *User) hashPassword(password string) error {
+func (u *RecipeUser) hashPassword(password string) error {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 4)
 	if err != nil {
 		return err

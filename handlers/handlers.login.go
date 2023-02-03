@@ -11,7 +11,7 @@ import (
 
 func PostLoginHandler(repo *repository.RecipeRepository) http.HandlerFunc {
 	fn := func(w http.ResponseWriter, r *http.Request) {
-		var user models.User
+		var user models.RecipeUser
 		if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
 			log.Print(err)
 			w.WriteHeader(http.StatusBadRequest)
