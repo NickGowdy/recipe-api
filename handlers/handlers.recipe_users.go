@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -17,32 +18,27 @@ func PostLoginHandler(repo *repository.RecipeRepository) http.HandlerFunc {
 			return
 		}
 
-		hashedPwd, err := repo.GetRecipeUserPwd(creds.Email)
+		ru, err := repo.GetRecipeUserPwd(creds.Email)
 		if err != nil {
 			log.Print(err)
 			w.WriteHeader(http.StatusNotFound)
 			return
 		}
 
-		// m, err := repo.GetRecipeUser(creds.Email, creds.Password)
-		// if err != nil {
-		// 	log.Print(err)
-		// 	w.WriteHeader(http.StatusNotFound)
-		// 	return
-		// }
-
-		if err = bcrypt.CompareHashAndPassword([]byte(hashedPwd), []byte(creds.Password)); err != nil {
+		if err = bcrypt.CompareHashAndPassword([]byte(ru.Password), []byte(creds.Password)); err != nil {
 			w.WriteHeader(http.StatusUnauthorized)
 		}
 
-		// j, err := json.Marshal(&m)
-		// if err != nil {
-		// 	log.Print(err)
-		// 	w.WriteHeader(http.StatusInternalServerError)
-		// 	return
-		// }
+		j, err := json.Marshal(&ru)
+		if err != nil {
+			log.Print(err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 
-		w.WriteHeader(http.StatusOK)
+		fmt.Println(j)
+
+		w.Write(j)
 	}
 	return http.HandlerFunc(fn)
 }
