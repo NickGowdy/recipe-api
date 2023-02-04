@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/gorilla/mux"
 	"github.com/recipe-api/repository"
@@ -29,6 +30,14 @@ func SetupRoutes(repo *repository.RecipeRepository) {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func middleware(next http.Handler) http.Handler {
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		authHeader := strings.Split(r.Header.Get("Authorization"), "Bearer ")
+		fmt.Println(authHeader)
+	}
+	return http.HandlerFunc(fn)
 }
 
 func HealthCheck(w http.ResponseWriter, r *http.Request) {
