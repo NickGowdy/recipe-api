@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/golang-jwt/jwt"
 	"github.com/gorilla/mux"
 	"github.com/recipe-api/models"
 	"github.com/recipe-api/repository"
@@ -13,7 +14,12 @@ import (
 
 func GetAllRecipesHandler(repo *repository.RecipeRepository) http.HandlerFunc {
 	fn := func(w http.ResponseWriter, r *http.Request) {
-		rs, err := repo.GetRecipes()
+		recipeUserId, shouldReturn := getRecipeUserId(r, w)
+		if shouldReturn {
+			return
+		}
+
+		rs, err := repo.GetRecipes(recipeUserId)
 
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -134,4 +140,18 @@ func DeleteRecipeHandler(repo *repository.RecipeRepository) http.HandlerFunc {
 		w.WriteHeader(http.StatusOK)
 	}
 	return http.HandlerFunc(fn)
+}
+
+func getRecipeUserId(r *http.Request, w http.ResponseWriter) (int, bool) {
+	props, _ := r.Context().Value("claims").(jwt.MapClaims)
+	log.Print(props)
+	recipeUserIdFloat, ok := props["recipe_user_id"].(float64)
+
+	if !ok {
+		w.WriteHeader(http.StatusBadRequest)
+		return 0, true
+	}
+
+	recipeUserId := int(recipeUserIdFloat)
+	return recipeUserId, false
 }

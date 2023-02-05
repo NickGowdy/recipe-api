@@ -19,9 +19,11 @@ func NewRecipeRepository(db *recipeDb.RecipeDb) RecipeRepository {
 	}
 }
 
-func (r *RecipeRepository) GetRecipes() (*[]models.Recipe, error) {
+func (r *RecipeRepository) GetRecipes(recipeUserId int) (*[]models.Recipe, error) {
 
-	rows, err := r.db.SqlDb.Query("SELECT * FROM recipe")
+	log.Print("Entering here.....")
+	log.Print(recipeUserId)
+	rows, err := r.db.SqlDb.Query("SELECT * FROM recipe where recipe_user_id=$1", recipeUserId)
 	if err != nil {
 		log.Print(err)
 	}
