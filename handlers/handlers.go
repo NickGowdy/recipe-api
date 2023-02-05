@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -18,8 +19,7 @@ func SetupRoutes(repo *repository.RecipeRepository) {
 	r.HandleFunc("/register", PostRegisterHandler(repo)).Methods("POST")
 	r.HandleFunc("/login", PostLoginHandler(repo)).Methods("POST")
 
-	r.Handle("/recipe", middleware(GetRecipeHandler(repo))).Methods("GET")
-	// r.HandleFunc("/recipe", GetRecipesHandler(repo)).Methods("GET")
+	r.Handle("/recipe", middleware(GetAllRecipesHandler(repo))).Methods("GET")
 	r.HandleFunc("/recipe/{id}", GetRecipeHandler(repo)).Methods("GET")
 	r.HandleFunc("/recipe", InsertRecipeHandler(repo)).Methods("POST")
 	r.HandleFunc("/recipe/{id}", UpdateRecipeHandler(repo)).Methods("PUT")
@@ -43,25 +43,21 @@ func middleware(next http.Handler) http.Handler {
 			w.WriteHeader(http.StatusUnauthorized)
 		} else {
 			tokenString := authHeader[1]
-			// Parse the token
-			token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+			_, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
 				return jwtKey, nil
 			})
 
 			if err != nil {
-				if err == jwt.ErrSignatureInvalid {
-					w.WriteHeader(http.StatusUnauthorized)
-					return
-				}
-				w.WriteHeader(http.StatusBadRequest)
-				return
-			}
-			if !token.Valid {
 				w.WriteHeader(http.StatusUnauthorized)
 				return
 			}
 
-			w.Write([]byte(fmt.Sprintf("Welcome %v!", claims["recipe_user_id"])))
+			ctx := context.WithValue(r.Context(), "claims", claims)
+			// Access context values in handlers like this
+			// props, _ := r.Context().Value("props").(jwt.MapClaims)
+			next.ServeHTTP(w, r.WithContext(ctx))
+
+			return
 		}
 	})
 }

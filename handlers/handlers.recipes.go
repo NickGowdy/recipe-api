@@ -11,7 +11,7 @@ import (
 	"github.com/recipe-api/repository"
 )
 
-func GetRecipesHandler(repo *repository.RecipeRepository) http.HandlerFunc {
+func GetAllRecipesHandler(repo *repository.RecipeRepository) http.HandlerFunc {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		rs, err := repo.GetRecipes()
 
