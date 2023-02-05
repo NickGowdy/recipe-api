@@ -33,7 +33,7 @@ func (r *RecipeRepository) GetRecipes() (*[]models.Recipe, error) {
 		var r models.Recipe
 		err := rows.Scan(
 			&r.Id,
-			&r.AccountId,
+			&r.RecipeUserId,
 			&r.RecipeName,
 			&r.RecipeSteps,
 			&r.CreatedOn,
@@ -43,7 +43,6 @@ func (r *RecipeRepository) GetRecipes() (*[]models.Recipe, error) {
 		}
 
 		recipes = append(recipes, r)
-		log.Print(recipes)
 	}
 	err = rows.Err()
 	if err != nil {
@@ -60,7 +59,7 @@ func (r *RecipeRepository) GetRecipe(recipeId int) (*models.Recipe, error) {
 
 	switch err := row.Scan(
 		&recipe.Id,
-		&recipe.AccountId,
+		&recipe.RecipeUserId,
 		&recipe.RecipeName,
 		&recipe.RecipeSteps,
 		&recipe.CreatedOn,
@@ -77,7 +76,7 @@ func (r *RecipeRepository) GetRecipe(recipeId int) (*models.Recipe, error) {
 
 func (r *RecipeRepository) InsertRecipe(nr *models.Recipe) (b int64, err error) {
 	var id int64
-	var cols = "(account_id, recipe_name, recipe_steps, created_on, updated_on)"
+	var cols = "(recipe_user_id, recipe_name, recipe_steps, created_on, updated_on)"
 	var values = "($1, $2, $3, now(), now())"
 
 	var query = fmt.Sprintf(
@@ -87,7 +86,7 @@ func (r *RecipeRepository) InsertRecipe(nr *models.Recipe) (b int64, err error) 
 
 	if err := r.db.SqlDb.QueryRow(
 		query,
-		nr.AccountId, nr.RecipeName, nr.RecipeSteps,
+		nr.RecipeUserId, nr.RecipeName, nr.RecipeSteps,
 	).Scan(&id); err != nil {
 		panic(err)
 	}
