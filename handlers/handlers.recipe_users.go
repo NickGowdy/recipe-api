@@ -30,7 +30,7 @@ func PostRegisterHandler(repo *repository.RecipeRepository) http.HandlerFunc {
 		}
 
 		hashedPasswordStr := string(hashedPassword)
-		m, err := repo.InsertRecipeUser(&register.Firstname, &register.Lastname, &register.Email, &hashedPasswordStr)
+		m, err := repo.InsertRecipeUser(register.Firstname, register.Lastname, register.Email, hashedPasswordStr)
 
 		if err != nil {
 			log.Print(err)

@@ -3,6 +3,7 @@ package handlers
 import (
 	"bytes"
 	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -13,16 +14,16 @@ import (
 )
 
 func TestRegister(t *testing.T) {
-	SetupEnv()
+	SetupEnvVars()
 
 	db := recipeDb.NewRecipeDb()
 	repo := repository.NewRecipeRepository(db)
 
 	register := models.Register{
-		Firstname: "Test",
-		Lastname:  "User",
-		Email:     "testuser@gmail.com",
-		Password:  "password",
+		Firstname: firstname,
+		Lastname:  lastname,
+		Email:     email,
+		Password:  password,
 	}
 	body, _ := json.Marshal(register)
 	req, err := http.NewRequest("POST", "/register/", bytes.NewReader(body))
@@ -51,6 +52,54 @@ func TestRegister(t *testing.T) {
 
 	if recipeUserId == 0 {
 		t.Errorf("recipe user id should be greather than 0 but is: %v", recipeUserId)
+	}
+
+	Teardown(recipeUserId)
+}
+
+func TestLogin(t *testing.T) {
+	SetupEnvVars()
+
+	db := recipeDb.NewRecipeDb()
+	repo := repository.NewRecipeRepository(db)
+
+	body, _ := json.Marshal(models.Register{
+		Firstname: firstname,
+		Lastname:  lastname,
+		Email:     email,
+		Password:  password,
+	})
+	req, _ := http.NewRequest("POST", "/register", bytes.NewReader(body))
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(PostRegisterHandler(&repo))
+
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusCreated {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusCreated)
+	}
+
+	var recipeUserId int
+	json.NewDecoder(rr.Body).Decode(&recipeUserId)
+
+	body, _ = json.Marshal(models.Credentials{
+		Email:    email,
+		Password: password,
+	})
+
+	req, _ = http.NewRequest("POST", "/login", bytes.NewReader(body))
+
+	rr = httptest.NewRecorder()
+	handler = http.HandlerFunc(PostLoginHandler(&repo))
+	handler.ServeHTTP(rr, req)
+
+	bodyBytes, _ := io.ReadAll(rr.Body)
+	token := string(bodyBytes)
+
+	if token == "" {
+		t.Errorf("token should be empty, but was: %s", token)
 	}
 
 	Teardown(recipeUserId)

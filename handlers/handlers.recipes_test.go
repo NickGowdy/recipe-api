@@ -16,7 +16,7 @@ import (
 )
 
 func TestGetRecipe(t *testing.T) {
-	SetupEnv()
+	SetupEnvVars()
 	recipeId := setupFixture()
 
 	var recipe models.Recipe
@@ -66,7 +66,7 @@ func TestGetRecipe(t *testing.T) {
 }
 
 func TestInsertRecipe(t *testing.T) {
-	SetupEnv()
+	SetupEnvVars()
 
 	recipeToInsert := models.Recipe{
 		Id:          0,
@@ -139,7 +139,7 @@ func TestInsertRecipe(t *testing.T) {
 }
 
 func TestUpdateRecipe(t *testing.T) {
-	SetupEnv()
+	SetupEnvVars()
 	recipeId := setupFixture()
 
 	var recipe models.Recipe
@@ -208,7 +208,7 @@ func TestUpdateRecipe(t *testing.T) {
 }
 
 func TestDeleteRecipe(t *testing.T) {
-	SetupEnv()
+	SetupEnvVars()
 	recipeId := setupFixture()
 
 	req, err := http.NewRequest("DELETE", fmt.Sprintf("/recipe/%v", recipeId), nil)
