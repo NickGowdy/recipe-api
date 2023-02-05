@@ -54,9 +54,9 @@ func (r *RecipeRepository) GetRecipes(recipeUserId int) (*[]models.Recipe, error
 	return &recipes, nil
 }
 
-func (r *RecipeRepository) GetRecipe(recipeId int) (*models.Recipe, error) {
+func (r *RecipeRepository) GetRecipe(recipeId int, recipeUserid int) (*models.Recipe, error) {
 
-	row := r.db.SqlDb.QueryRow("SELECT * FROM recipe WHERE id=$1", recipeId)
+	row := r.db.SqlDb.QueryRow("SELECT * FROM recipe WHERE id=$1 AND recipe_user_id=$2", recipeId, recipeUserid)
 	var recipe models.Recipe
 
 	switch err := row.Scan(
@@ -76,7 +76,7 @@ func (r *RecipeRepository) GetRecipe(recipeId int) (*models.Recipe, error) {
 	}
 }
 
-func (r *RecipeRepository) InsertRecipe(nr *models.Recipe) (b int64, err error) {
+func (r *RecipeRepository) InsertRecipe(recipeUserId int, ir *models.InsertRecipe) (b int64, err error) {
 	var id int64
 	var cols = "(recipe_user_id, recipe_name, recipe_steps, created_on, updated_on)"
 	var values = "($1, $2, $3, now(), now())"
@@ -88,7 +88,7 @@ func (r *RecipeRepository) InsertRecipe(nr *models.Recipe) (b int64, err error) 
 
 	if err := r.db.SqlDb.QueryRow(
 		query,
-		nr.RecipeUserId, nr.RecipeName, nr.RecipeSteps,
+		recipeUserId, ir.RecipeName, ir.RecipeSteps,
 	).Scan(&id); err != nil {
 		panic(err)
 	}
