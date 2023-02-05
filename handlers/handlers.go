@@ -21,9 +21,9 @@ func SetupRoutes(repo *repository.RecipeRepository) {
 
 	r.Handle("/recipe", middleware(GetAllRecipesHandler(repo))).Methods("GET")
 	r.Handle("/recipe/{id}", middleware(GetRecipeHandler(repo))).Methods("GET")
-	r.Handle("/recipe", middleware(InsertRecipeHandler(repo))).Methods("GET")
-	r.Handle("/recipe/{id}", middleware(UpdateRecipeHandler(repo))).Methods("GET")
-	r.Handle("/recipe/{id}", middleware(UpdateRecipeHandler(repo))).Methods("GET")
+	r.Handle("/recipe", middleware(InsertRecipeHandler(repo))).Methods("POST")
+	r.Handle("/recipe/{id}", middleware(UpdateRecipeHandler(repo))).Methods("PUT")
+	r.Handle("/recipe/{id}", middleware(UpdateRecipeHandler(repo))).Methods("DELETE")
 
 	r.HandleFunc("/health-check", HealthCheck).Methods("GET")
 
