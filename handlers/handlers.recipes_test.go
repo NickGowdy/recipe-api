@@ -7,7 +7,6 @@ import (
 	"log"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"testing"
 
 	"github.com/gorilla/mux"
@@ -17,7 +16,7 @@ import (
 )
 
 func TestGetRecipe(t *testing.T) {
-	setupEnv()
+	SetupEnv()
 	recipeId := setupFixture()
 
 	var recipe models.Recipe
@@ -67,7 +66,7 @@ func TestGetRecipe(t *testing.T) {
 }
 
 func TestInsertRecipe(t *testing.T) {
-	setupEnv()
+	SetupEnv()
 
 	recipeToInsert := models.Recipe{
 		Id:          0,
@@ -140,7 +139,7 @@ func TestInsertRecipe(t *testing.T) {
 }
 
 func TestUpdateRecipe(t *testing.T) {
-	setupEnv()
+	SetupEnv()
 	recipeId := setupFixture()
 
 	var recipe models.Recipe
@@ -209,7 +208,7 @@ func TestUpdateRecipe(t *testing.T) {
 }
 
 func TestDeleteRecipe(t *testing.T) {
-	setupEnv()
+	SetupEnv()
 	recipeId := setupFixture()
 
 	req, err := http.NewRequest("DELETE", fmt.Sprintf("/recipe/%v", recipeId), nil)
@@ -250,14 +249,6 @@ func TestDeleteRecipe(t *testing.T) {
 		t.Errorf("handler returned wrong status code: got %v want %v",
 			status, http.StatusOK)
 	}
-}
-
-func setupEnv() {
-	os.Setenv("user", "postgres")
-	os.Setenv("password", "postgres")
-	os.Setenv("dbname", "recipes_db")
-	os.Setenv("host", "localhost")
-	os.Setenv("port", "5432")
 }
 
 func setupFixture() int64 {
