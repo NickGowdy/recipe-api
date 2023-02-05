@@ -20,9 +20,6 @@ func NewRecipeRepository(db *recipeDb.RecipeDb) RecipeRepository {
 }
 
 func (r *RecipeRepository) GetRecipes(recipeUserId int) (*[]models.Recipe, error) {
-
-	log.Print("Entering here.....")
-	log.Print(recipeUserId)
 	rows, err := r.db.SqlDb.Query("SELECT * FROM recipe where recipe_user_id=$1", recipeUserId)
 	if err != nil {
 		log.Print(err)
@@ -116,8 +113,6 @@ func (r *RecipeRepository) UpdateRecipe(recipeid int, recipeUserId int, recipe *
 }
 
 func (r *RecipeRepository) DeleteRecipe(recipeId int, recipeUserId int) (d bool, err error) {
-	log.Print(recipeId)
-	log.Print(recipeUserId)
 	q := `DELETE FROM recipe WHERE id=$1 AND recipe_user_id=$2;`
 	_, err = r.db.SqlDb.Exec(q, recipeId, recipeUserId)
 
@@ -147,6 +142,17 @@ func (r *RecipeRepository) InsertRecipeUser(firstname *string, lastname *string,
 	}
 
 	return id, nil
+}
+
+func (r *RecipeRepository) DeleteRecipeUser(recipeUserId int) (d bool, err error) {
+	q := "DELETE FROM recipe_user WHERE id=$1;"
+	_, err = r.db.SqlDb.Exec(q, recipeUserId)
+
+	if err != nil {
+		log.Print(err)
+	}
+
+	return true, nil
 }
 
 func (r *RecipeRepository) GetRecipeUserPwd(email string) (*models.RecipeUser, error) {

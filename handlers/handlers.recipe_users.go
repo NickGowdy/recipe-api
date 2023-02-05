@@ -44,6 +44,7 @@ func PostRegisterHandler(repo *repository.RecipeRepository) http.HandlerFunc {
 			return
 		}
 
+		w.WriteHeader(http.StatusCreated)
 		w.Write(j)
 	}
 	return http.HandlerFunc(fn)

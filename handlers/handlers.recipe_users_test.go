@@ -38,7 +38,20 @@ func TestRegister(t *testing.T) {
 
 	if status := rr.Code; status != http.StatusCreated {
 		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusOK)
+			status, http.StatusCreated)
 	}
 
+	var recipeUserId int
+
+	err = json.NewDecoder(rr.Body).Decode(&recipeUserId)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	if recipeUserId == 0 {
+		t.Errorf("recipe user id should be greather than 0 but is: %v", recipeUserId)
+	}
+
+	Teardown(recipeUserId)
 }
