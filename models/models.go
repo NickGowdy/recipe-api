@@ -7,12 +7,12 @@ import (
 )
 
 type Recipe struct {
-	Id          int64     `json:"id"`
-	AccountId   int       `json:"accountId"`
-	RecipeName  string    `json:"recipeName"`
-	RecipeSteps string    `json:"recipeSteps"`
-	CreatedOn   time.Time `json:"createdOn"`
-	UpdatedOn   time.Time `json:"updatedOn"`
+	Id           int64     `json:"id"`
+	RecipeUserId int64     `json:"recipeUserId"`
+	RecipeName   string    `json:"recipeName"`
+	RecipeSteps  string    `json:"recipeSteps"`
+	CreatedOn    time.Time `json:"createdOn"`
+	UpdatedOn    time.Time `json:"updatedOn"`
 	// TODO: implement this later.
 	// IngredientQuantity []IngredientQuantityType `json:"ingredientQuantity"`
 }
