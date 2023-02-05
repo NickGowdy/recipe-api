@@ -115,9 +115,11 @@ func (r *RecipeRepository) UpdateRecipe(recipeid int, recipeUserId int, recipe *
 	return true, nil
 }
 
-func (r *RecipeRepository) DeleteRecipe(recipeId int) (d bool, err error) {
-	q := `DELETE FROM recipe WHERE id=$1`
-	_, err = r.db.SqlDb.Exec(q, recipeId)
+func (r *RecipeRepository) DeleteRecipe(recipeId int, recipeUserId int) (d bool, err error) {
+	log.Print(recipeId)
+	log.Print(recipeUserId)
+	q := `DELETE FROM recipe WHERE id=$1 AND recipe_user_id=$2;`
+	_, err = r.db.SqlDb.Exec(q, recipeId, recipeUserId)
 
 	if err != nil {
 		log.Print(err)
@@ -148,6 +150,7 @@ func (r *RecipeRepository) InsertRecipeUser(firstname *string, lastname *string,
 }
 
 func (r *RecipeRepository) GetRecipeUserPwd(email string) (*models.RecipeUser, error) {
+
 	row := r.db.SqlDb.QueryRow("SELECT * FROM recipe_user WHERE email=$1", email)
 
 	var ru models.RecipeUser

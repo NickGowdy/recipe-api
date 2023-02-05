@@ -136,14 +136,22 @@ func UpdateRecipeHandler(repo *repository.RecipeRepository) http.HandlerFunc {
 
 func DeleteRecipeHandler(repo *repository.RecipeRepository) http.HandlerFunc {
 	fn := func(w http.ResponseWriter, r *http.Request) {
+		recipeUserId, shouldReturn := getRecipeUserId(r, w)
+		if shouldReturn {
+			return
+		}
+
 		recipeId, err := strconv.Atoi(mux.Vars(r)["id"])
+		log.Print(recipeId)
+		log.Print(recipeUserId)
+		log.Print("Ok up to now...")
 
 		if err != nil {
 			log.Print(err)
 			w.WriteHeader(http.StatusBadRequest)
 		}
 
-		_, err = repo.DeleteRecipe(recipeId)
+		_, err = repo.DeleteRecipe(recipeId, recipeUserId)
 
 		if err != nil {
 			log.Print(err)
