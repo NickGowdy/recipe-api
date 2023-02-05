@@ -71,7 +71,6 @@ func TestInsertRecipe(t *testing.T) {
 
 	recipeToInsert := models.Recipe{
 		Id:          0,
-		AccountId:   1,
 		RecipeName:  "Nick's other recipe",
 		RecipeSteps: "Some other steps for Nick's recipe",
 	}
@@ -150,7 +149,6 @@ func TestUpdateRecipe(t *testing.T) {
 
 	recipeToUpdate := models.Recipe{
 		Id:          recipeId,
-		AccountId:   1,
 		RecipeName:  "This is the new name",
 		RecipeSteps: "These are the new steps",
 	}
@@ -265,7 +263,6 @@ func setupEnv() {
 func setupFixture() int64 {
 	recipeToInsert := models.Recipe{
 		Id:          0,
-		AccountId:   1,
 		RecipeName:  "Nick's recipe",
 		RecipeSteps: "Some steps for Nick's recipe",
 	}
