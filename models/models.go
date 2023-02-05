@@ -25,7 +25,7 @@ type RecipeUser struct {
 	UpdatedOn time.Time `json:"updatedOn"`
 }
 
-type InsertRecipe struct {
+type SaveRecipe struct {
 	RecipeName  string `json:"recipeName"`
 	RecipeSteps string `json:"recipeSteps"`
 }

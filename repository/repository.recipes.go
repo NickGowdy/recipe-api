@@ -76,7 +76,7 @@ func (r *RecipeRepository) GetRecipe(recipeId int, recipeUserid int) (*models.Re
 	}
 }
 
-func (r *RecipeRepository) InsertRecipe(recipeUserId int, ir *models.InsertRecipe) (b int64, err error) {
+func (r *RecipeRepository) InsertRecipe(recipeUserId int, ir *models.SaveRecipe) (b int64, err error) {
 	var id int64
 	var cols = "(recipe_user_id, recipe_name, recipe_steps, created_on, updated_on)"
 	var values = "($1, $2, $3, now(), now())"
@@ -101,13 +101,13 @@ func (r *RecipeRepository) InsertRecipe(recipeUserId int, ir *models.InsertRecip
 	return id, nil
 }
 
-func (r *RecipeRepository) UpdateRecipe(recipe *models.Recipe, recipeid int) (d bool, err error) {
+func (r *RecipeRepository) UpdateRecipe(recipeid int, recipeUserId int, recipe *models.SaveRecipe) (d bool, err error) {
 	q := `
 		UPDATE recipe
-		SET recipe_name = $2, recipe_steps = $3
-		WHERE id = $1;`
+		SET recipe_name = $3, recipe_steps = $4
+		WHERE id = $1 AND recipe_user_id = $2;`
 
-	_, err = r.db.SqlDb.Exec(q, recipeid, recipe.RecipeName, recipe.RecipeSteps)
+	_, err = r.db.SqlDb.Exec(q, recipeid, recipeUserId, recipe.RecipeName, recipe.RecipeSteps)
 	if err != nil {
 		log.Print(err)
 	}
