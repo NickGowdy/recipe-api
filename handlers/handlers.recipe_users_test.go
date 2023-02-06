@@ -3,6 +3,7 @@ package handlers
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -18,14 +19,15 @@ func TestRegister(t *testing.T) {
 
 	db := recipeDb.NewRecipeDb()
 	repo := repository.NewRecipeRepository(db)
+	email := fmt.Sprintf("%s@gmail.com", randomString(12))
+	password := randomString(12)
 
-	register := models.Register{
-		Firstname: firstname,
-		Lastname:  lastname,
+	body, _ := json.Marshal(models.Register{
+		Firstname: randomString(12),
+		Lastname:  randomString(12),
 		Email:     email,
 		Password:  password,
-	}
-	body, _ := json.Marshal(register)
+	})
 	req, err := http.NewRequest("POST", "/register/", bytes.NewReader(body))
 
 	if err != nil {
@@ -62,10 +64,12 @@ func TestLogin(t *testing.T) {
 
 	db := recipeDb.NewRecipeDb()
 	repo := repository.NewRecipeRepository(db)
+	email := fmt.Sprintf("%s@gmail.com", randomString(12))
+	password := randomString(12)
 
 	body, _ := json.Marshal(models.Register{
-		Firstname: firstname,
-		Lastname:  lastname,
+		Firstname: randomString(12),
+		Lastname:  randomString(12),
 		Email:     email,
 		Password:  password,
 	})
