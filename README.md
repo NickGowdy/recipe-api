@@ -31,7 +31,7 @@ To get a list of your recipes use:
 ```
 curl -X GET 'http://localhost:8080/recipe' \
    -H 'Content-Type: application/json' \
-   -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NzU3MDc1MTksImlhdCI6MTY3NTcwMzkxOSwicmVjaXBlX3VzZXJfaWQiOjY3fQ.0R-DR8YQKkmj9YX4JcBjamxyBIptiQv-NdRfwD3jfzg' 
+   -H 'Authorization: Bearer {token}' 
 ```
 
 To get a specific recipe use:
@@ -39,7 +39,7 @@ To get a specific recipe use:
 ```
 curl -X GET 'http://localhost:8080/recipe/{id}' \
    -H 'Content-Type: application/json' \
-   -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NzU3MDc1MTksImlhdCI6MTY3NTcwMzkxOSwicmVjaXBlX3VzZXJfaWQiOjY3fQ.0R-DR8YQKkmj9YX4JcBjamxyBIptiQv-NdRfwD3jfzg' 
+   -H 'Authorization: Bearer {token}' 
 ```
 
 To save a new recipe, you can use:
@@ -47,7 +47,7 @@ To save a new recipe, you can use:
 ```
 curl -X POST http://localhost:8080/recipe \
    -H 'Content-Type: application/json' \
-   -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NzU3MDc1MTksImlhdCI6MTY3NTcwMzkxOSwicmVjaXBlX3VzZXJfaWQiOjY3fQ.0R-DR8YQKkmj9YX4JcBjamxyBIptiQv-NdRfwD3jfzg' \
+   -H 'Authorization: Bearer {token}' \
    -d '{"recipeName": "A new recipe", "recipeSteps": "some steps for the recipe"}'
 ```
 
@@ -56,7 +56,7 @@ You can update an existing recipe with
 ```
 curl -X PUT http://localhost:8080/recipe/{id} \
    -H 'Content-Type: application/json' \
-   -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NzU3MDc1MTksImlhdCI6MTY3NTcwMzkxOSwicmVjaXBlX3VzZXJfaWQiOjY3fQ.0R-DR8YQKkmj9YX4JcBjamxyBIptiQv-NdRfwD3jfzg' \
+   -H 'Authorization: Bearer {token}' \
    -d '{"recipeName": "A new recipe 123", "recipeSteps": "some steps for the recipe 123"}'
 ```
 
@@ -65,7 +65,7 @@ Finally a recipe can be deleted with this:
 ```
 curl -X DELETE http://localhost:8080/recipe/{id} \
    -H 'Content-Type: application/json' \
-   -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NzU3MDc1MTksImlhdCI6MTY3NTcwMzkxOSwicmVjaXBlX3VzZXJfaWQiOjY3fQ.0R-DR8YQKkmj9YX4JcBjamxyBIptiQv-NdRfwD3jfzg' 
+   -H 'Authorization: Bearer {token}' 
 ```
 
 
