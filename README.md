@@ -10,7 +10,7 @@ This API is built with Golang and Postgres. It can be run locally using docker w
 
 - Run `docker-compose down` to stop the API and Postgres database or `docker-compose down --volumes` to also remove the database volumes.
 
-**List of endpoints*
+**List of endpoints**
 
 To use this API you will first need to register an account, this can be done with the following:
 
