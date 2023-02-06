@@ -6,16 +6,23 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/golang-jwt/jwt"
 	"github.com/gorilla/mux"
 	"github.com/recipe-api/models"
 	"github.com/recipe-api/repository"
 )
 
-func GetRecipesHandler(repo *repository.RecipeRepository) http.HandlerFunc {
+func GetAllRecipesHandler(repo *repository.RecipeRepository) http.HandlerFunc {
 	fn := func(w http.ResponseWriter, r *http.Request) {
-		rs, err := repo.GetRecipes()
+		recipeUserId, shouldReturn := getRecipeUserId(r, w)
+		if shouldReturn {
+			return
+		}
+
+		rs, err := repo.GetRecipes(recipeUserId)
 
 		if err != nil {
+			log.Print(err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -23,6 +30,8 @@ func GetRecipesHandler(repo *repository.RecipeRepository) http.HandlerFunc {
 		j, err := json.Marshal(rs)
 		if err != nil {
 			log.Print(err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
 		}
 		w.Write(j)
 	}
@@ -31,6 +40,11 @@ func GetRecipesHandler(repo *repository.RecipeRepository) http.HandlerFunc {
 
 func GetRecipeHandler(repo *repository.RecipeRepository) http.HandlerFunc {
 	fn := func(w http.ResponseWriter, r *http.Request) {
+		recipeUserId, shouldReturn := getRecipeUserId(r, w)
+		if shouldReturn {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
 		recipeId, err := strconv.Atoi(mux.Vars(r)["id"])
 
 		if err != nil {
@@ -38,7 +52,7 @@ func GetRecipeHandler(repo *repository.RecipeRepository) http.HandlerFunc {
 			w.WriteHeader(http.StatusBadRequest)
 		}
 
-		rs, err := repo.GetRecipe(recipeId)
+		rs, err := repo.GetRecipe(recipeId, recipeUserId)
 
 		if err != nil {
 			log.Print(err)
@@ -60,14 +74,20 @@ func GetRecipeHandler(repo *repository.RecipeRepository) http.HandlerFunc {
 
 func InsertRecipeHandler(repo *repository.RecipeRepository) http.HandlerFunc {
 	fn := func(w http.ResponseWriter, r *http.Request) {
-		var recipeToSave models.Recipe
+		recipeUserId, shouldReturn := getRecipeUserId(r, w)
+		if shouldReturn {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		var recipeToSave models.SaveRecipe
 		if err := json.NewDecoder(r.Body).Decode(&recipeToSave); err != nil {
 			log.Print(err)
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 
-		id, err := repo.InsertRecipe(&recipeToSave)
+		id, err := repo.InsertRecipe(recipeUserId, &recipeToSave)
 		if err != nil {
 			log.Print(err)
 			w.WriteHeader(http.StatusInternalServerError)
@@ -89,20 +109,26 @@ func InsertRecipeHandler(repo *repository.RecipeRepository) http.HandlerFunc {
 
 func UpdateRecipeHandler(repo *repository.RecipeRepository) http.HandlerFunc {
 	fn := func(w http.ResponseWriter, r *http.Request) {
+		recipeUserId, shouldReturn := getRecipeUserId(r, w)
+		if shouldReturn {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
 		recipeId, err := strconv.Atoi(mux.Vars(r)["id"])
 
 		if err != nil {
 			log.Print(err)
 			w.WriteHeader(http.StatusBadRequest)
 		}
-		var recipeToSave models.Recipe
-		if err := json.NewDecoder(r.Body).Decode(&recipeToSave); err != nil {
+		var recipeToUpdate models.SaveRecipe
+		if err := json.NewDecoder(r.Body).Decode(&recipeToUpdate); err != nil {
 			log.Print(err)
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 
-		_, err = repo.UpdateRecipe(&recipeToSave, recipeId)
+		_, err = repo.UpdateRecipe(recipeId, recipeUserId, &recipeToUpdate)
 		if err != nil {
 			log.Print(err)
 			w.WriteHeader(http.StatusInternalServerError)
@@ -116,6 +142,12 @@ func UpdateRecipeHandler(repo *repository.RecipeRepository) http.HandlerFunc {
 
 func DeleteRecipeHandler(repo *repository.RecipeRepository) http.HandlerFunc {
 	fn := func(w http.ResponseWriter, r *http.Request) {
+		recipeUserId, shouldReturn := getRecipeUserId(r, w)
+		if shouldReturn {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
 		recipeId, err := strconv.Atoi(mux.Vars(r)["id"])
 
 		if err != nil {
@@ -123,7 +155,7 @@ func DeleteRecipeHandler(repo *repository.RecipeRepository) http.HandlerFunc {
 			w.WriteHeader(http.StatusBadRequest)
 		}
 
-		_, err = repo.DeleteRecipe(recipeId)
+		_, err = repo.DeleteRecipe(recipeId, recipeUserId)
 
 		if err != nil {
 			log.Print(err)
@@ -134,4 +166,17 @@ func DeleteRecipeHandler(repo *repository.RecipeRepository) http.HandlerFunc {
 		w.WriteHeader(http.StatusOK)
 	}
 	return http.HandlerFunc(fn)
+}
+
+func getRecipeUserId(r *http.Request, w http.ResponseWriter) (int, bool) {
+	props, _ := r.Context().Value("claims").(jwt.MapClaims)
+	recipeUserIdFloat, ok := props["recipe_user_id"].(float64)
+
+	if !ok {
+		w.WriteHeader(http.StatusBadRequest)
+		return 0, true
+	}
+
+	recipeUserId := int(recipeUserIdFloat)
+	return recipeUserId, false
 }

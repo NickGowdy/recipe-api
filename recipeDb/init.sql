@@ -1,16 +1,19 @@
--- name: create-account-table
-CREATE TABLE IF NOT EXISTS account (
+-- name: create-recipe_user-table
+CREATE TABLE IF NOT EXISTS recipe_user (
   id INTEGER PRIMARY KEY generated always as identity,
   first_name VARCHAR(45) NOT NULL,
   last_name VARCHAR(45) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  password TEXT NOT NULL,
   created_on TIMESTAMP NOT NULL,
-  updated_on TIMESTAMP NOT NULL
+  updated_on TIMESTAMP NOT NULL,
+  UNIQUE(email)
 );
 
 -- name: create-recipe-table
 CREATE TABLE IF NOT EXISTS recipe (
   id INTEGER PRIMARY KEY generated always as identity,
-  account_id integer REFERENCES account (id),
+  recipe_user_id integer REFERENCES recipe_user (id),
   recipe_name VARCHAR(45) NOT NULL,
   recipe_steps VARCHAR NOT NULL,
   created_on TIMESTAMP NOT NULL,
@@ -42,51 +45,3 @@ CREATE TABLE IF NOT EXISTS ingredient_quantity_type (
   created_on TIMESTAMP NOT NULL,
   updated_on TIMESTAMP NOT NULL
 );
-
---name: insert-account
-INSERT INTO
-  account (
-    first_name,
-    last_name,
-    created_on,
-    updated_on
-  )
-SELECT
-  'Nick',
-  'Gowdy',
-  now(),
-  now()
-WHERE
-  NOT EXISTS (
-    SELECT
-      id
-    FROM
-      account
-    WHERE
-      id = 1
-  );
-
---name: insert-recipe
-INSERT INTO
-  recipe (
-    account_id,
-    recipe_name,
-    recipe_steps,
-    created_on,
-    updated_on
-  )
-SELECT
-  1,
-  'Lasagna',
-  'Some steps to make Lasagna',
-  now(),
-  now()
-WHERE
-  NOT EXISTS (
-    SELECT
-      id
-    FROM
-      recipe
-    WHERE
-      id = 1
-  );

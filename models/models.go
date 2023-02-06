@@ -2,35 +2,44 @@ package models
 
 import (
 	"time"
-
-	"golang.org/x/crypto/bcrypt"
 )
 
 type Recipe struct {
-	Id          int64     `json:"id"`
-	AccountId   int       `json:"accountId"`
-	RecipeName  string    `json:"recipeName"`
-	RecipeSteps string    `json:"recipeSteps"`
-	CreatedOn   time.Time `json:"createdOn"`
-	UpdatedOn   time.Time `json:"updatedOn"`
+	Id           int64     `json:"id"`
+	RecipeUserId int64     `json:"recipeUserId"`
+	RecipeName   string    `json:"recipeName"`
+	RecipeSteps  string    `json:"recipeSteps"`
+	CreatedOn    time.Time `json:"createdOn"`
+	UpdatedOn    time.Time `json:"updatedOn"`
 	// TODO: implement this later.
 	// IngredientQuantity []IngredientQuantityType `json:"ingredientQuantity"`
 }
 
-type Account struct {
-	Id        int       `json:"id"`
+type RecipeUser struct {
+	Id        int64     `json:"id"`
 	Firstname string    `json:"firstname"`
 	Lastname  string    `json:"lastname"`
-	CreatedOn time.Time `json:"createdOn"`
-	UpdatedOn time.Time `json:"updatedOn"`
-	// Recipes   []Recipe  `json:"recipes"`
-}
-
-type User struct {
 	Email     string    `json:"email"`
 	Password  string    `json:"password"`
 	CreatedOn time.Time `json:"createdOn"`
 	UpdatedOn time.Time `json:"updatedOn"`
+}
+
+type SaveRecipe struct {
+	RecipeName  string `json:"recipeName"`
+	RecipeSteps string `json:"recipeSteps"`
+}
+
+type Credentials struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+type Register struct {
+	Firstname string `json:"firstname"`
+	Lastname  string `json:"lastname"`
+	Email     string `json:"email"`
+	Password  string `json:"password"`
 }
 
 type Ingredient struct {
@@ -56,14 +65,4 @@ type IngredientQuantityType struct {
 	QuantityType   QuantityType `json:"quantityType"`
 	CreatedOn      time.Time    `json:"createdOn"`
 	UpdatedOn      time.Time    `json:"updatedOn"`
-}
-
-func (u *User) hashPassword(password string) error {
-	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 4)
-	if err != nil {
-		return err
-	}
-
-	u.Password = string(bytes)
-	return nil
 }
