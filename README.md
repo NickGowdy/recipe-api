@@ -16,7 +16,6 @@ To use this API you will first need to register an account, this can be done wit
 
 ```
 curl -X POST -H "Content-Type: application/json" -d '{"firstname": "test", "lastname": "user","email": "testuser123@gmail.com", "password": "mypassword123"}' http://localhost:8080/register
-
 ```
 
 You can then login with:
