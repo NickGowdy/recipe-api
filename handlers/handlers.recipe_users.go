@@ -22,6 +22,30 @@ func PostRegisterHandler(repo *repository.RecipeRepository) http.HandlerFunc {
 			return
 		}
 
+		if register.Firstname == "" {
+			w.Write([]byte("firstname is a required field"))
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		if register.Lastname == "" {
+			w.Write([]byte("lastname is a required field"))
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		if register.Email == "" {
+			w.Write([]byte("email is a required field"))
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		if register.Password == "" {
+			w.Write([]byte("password is a required field"))
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
 		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(register.Password), 8)
 		if err != nil {
 			log.Print(err)

@@ -12,21 +12,62 @@ This API is built with Golang and Postgres. It can be run locally using docker w
 
 **List of endpoints*
 
-To get a list of your recipes use:
-```
-curl http://localhost:8080/recipes
+To use this API you will first need to register an account, this can be done with the following:
 
+```
+curl -X POST -H "Content-Type: application/json" -d '{"firstname": "test", "lastname": "user","email": "testuser123@gmail.com", "password": "mypassword123"}' http://localhost:8080/register
+
+```
+
+You can then login with:
+
+```
+curl -X POST -H "Content-Type: application/json" -d '{"email": "testuser123@gmail.com", "password": "mypassword123"}' http://localhost:8080/login
+```
+
+This will give you a JSON Web Token (JWT) that will grant you access to your recipes.
+
+To get a list of your recipes use:
+
+```
+curl -X GET 'http://localhost:8080/recipe' \
+   -H 'Content-Type: application/json' \
+   -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NzU3MDc1MTksImlhdCI6MTY3NTcwMzkxOSwicmVjaXBlX3VzZXJfaWQiOjY3fQ.0R-DR8YQKkmj9YX4JcBjamxyBIptiQv-NdRfwD3jfzg' 
 ```
 
 To get a specific recipe use:
-```
-curl http://localhost:8080/recipes/{id}
 
 ```
+curl -X GET 'http://localhost:8080/recipe/{id}' \
+   -H 'Content-Type: application/json' \
+   -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NzU3MDc1MTksImlhdCI6MTY3NTcwMzkxOSwicmVjaXBlX3VzZXJfaWQiOjY3fQ.0R-DR8YQKkmj9YX4JcBjamxyBIptiQv-NdRfwD3jfzg' 
+```
 
-More to come later....
+To save a new recipe, you can use:
 
+```
+curl -X POST http://localhost:8080/recipe \
+   -H 'Content-Type: application/json' \
+   -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NzU3MDc1MTksImlhdCI6MTY3NTcwMzkxOSwicmVjaXBlX3VzZXJfaWQiOjY3fQ.0R-DR8YQKkmj9YX4JcBjamxyBIptiQv-NdRfwD3jfzg' \
+   -d '{"recipeName": "A new recipe", "recipeSteps": "some steps for the recipe"}'
+```
 
+You can update an existing recipe with
+
+```
+curl -X PUT http://localhost:8080/recipe/{id} \
+   -H 'Content-Type: application/json' \
+   -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NzU3MDc1MTksImlhdCI6MTY3NTcwMzkxOSwicmVjaXBlX3VzZXJfaWQiOjY3fQ.0R-DR8YQKkmj9YX4JcBjamxyBIptiQv-NdRfwD3jfzg' \
+   -d '{"recipeName": "A new recipe 123", "recipeSteps": "some steps for the recipe 123"}'
+```
+
+Finally a recipe can be deleted with this:
+
+```
+curl -X DELETE http://localhost:8080/recipe/{id} \
+   -H 'Content-Type: application/json' \
+   -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NzU3MDc1MTksImlhdCI6MTY3NTcwMzkxOSwicmVjaXBlX3VzZXJfaWQiOjY3fQ.0R-DR8YQKkmj9YX4JcBjamxyBIptiQv-NdRfwD3jfzg' 
+```
 
 
 
