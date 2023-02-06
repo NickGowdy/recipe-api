@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -21,10 +20,10 @@ func TestGetRecipe(t *testing.T) {
 	token := SetupToken(testUser)
 	bearer := "Bearer " + token
 	recipeId := SetupRecipe(bearer)
-
-	var recipe models.Recipe
 	db := recipeDb.NewRecipeDb()
 	repo := repository.NewRecipeRepository(db)
+
+	var recipe models.Recipe
 
 	req, err := http.NewRequest("GET", fmt.Sprintf("/recipe/%v", recipeId), nil)
 	req.Header.Set("Authorization", bearer)
@@ -66,8 +65,8 @@ func TestGetRecipe(t *testing.T) {
 		t.Errorf("recipe id is wrong value: got %v want %v",
 			recipe.RecipeSteps, "Some steps for Nick's recipe")
 	}
-
-	teardownFixture(recipeId)
+	TeardownRecipe(recipeId)
+	TeardownUser(testUser.email)
 }
 
 func TestInsertRecipe(t *testing.T) {
@@ -75,6 +74,8 @@ func TestInsertRecipe(t *testing.T) {
 	testUser := SetupUser()
 	token := SetupToken(testUser)
 	bearer := "Bearer " + token
+	db := recipeDb.NewRecipeDb()
+	repo := repository.NewRecipeRepository(db)
 
 	recipeToInsert := models.Recipe{
 		RecipeName:  "Nick's other recipe",
@@ -82,8 +83,6 @@ func TestInsertRecipe(t *testing.T) {
 	}
 
 	body, _ := json.Marshal(recipeToInsert)
-	db := recipeDb.NewRecipeDb()
-	repo := repository.NewRecipeRepository(db)
 
 	req, err := http.NewRequest("POST", "/recipe", bytes.NewReader(body))
 	req.Header.Set("Authorization", bearer)
@@ -148,8 +147,8 @@ func TestInsertRecipe(t *testing.T) {
 		t.Errorf("recipe id is wrong value: got %v want %v",
 			recipe.RecipeSteps, recipeToInsert.RecipeSteps)
 	}
-
-	teardownFixture(recipeId)
+	TeardownRecipe(recipeId)
+	TeardownUser(testUser.email)
 }
 
 func TestUpdateRecipe(t *testing.T) {
@@ -158,10 +157,10 @@ func TestUpdateRecipe(t *testing.T) {
 	token := SetupToken(testUser)
 	bearer := "Bearer " + token
 	recipeId := SetupRecipe(bearer)
-
-	var recipe models.Recipe
 	db := recipeDb.NewRecipeDb()
 	repo := repository.NewRecipeRepository(db)
+
+	var recipe models.Recipe
 
 	recipeToUpdate := models.Recipe{
 		Id:          recipeId,
@@ -174,6 +173,7 @@ func TestUpdateRecipe(t *testing.T) {
 	req, err := http.NewRequest("PUT", fmt.Sprintf("/recipe/%v", recipeId), bytes.NewReader(body))
 	req.Header.Set("Authorization", bearer)
 	req.Header.Add("Accept", "application/json")
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -222,8 +222,8 @@ func TestUpdateRecipe(t *testing.T) {
 		t.Errorf("recipe id is wrong value: got %v want %v",
 			recipe.RecipeSteps, recipeToUpdate.RecipeSteps)
 	}
-
-	teardownFixture(recipeId)
+	TeardownRecipe(recipeId)
+	TeardownUser(testUser.email)
 }
 
 func TestDeleteRecipe(t *testing.T) {
@@ -277,29 +277,7 @@ func TestDeleteRecipe(t *testing.T) {
 		t.Errorf("handler returned wrong status code: got %v want %v",
 			status, http.StatusOK)
 	}
-}
 
-func teardownFixture(recipeId int64) {
-	req, err := http.NewRequest("DELETE", fmt.Sprintf("/recipe/%v", recipeId), nil)
-	db := recipeDb.NewRecipeDb()
-	repo := repository.NewRecipeRepository(db)
-
-	if err != nil {
-		log.Panic(err)
-	}
-
-	vars := map[string]string{
-		"id": fmt.Sprint(recipeId),
-	}
-
-	req = mux.SetURLVars(req, vars)
-
-	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(DeleteRecipeHandler(&repo))
-
-	handler.ServeHTTP(rr, req)
-
-	if rr.Result().StatusCode != 200 {
-		fmt.Printf("error with teardown fixture expected: %v but got %v", 200, rr.Result().StatusCode)
-	}
+	TeardownRecipe(recipeId)
+	TeardownUser(testUser.email)
 }

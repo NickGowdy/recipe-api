@@ -56,7 +56,7 @@ func TestRegister(t *testing.T) {
 		t.Errorf("recipe user id should be greather than 0 but is: %v", recipeUserId)
 	}
 
-	Teardown(recipeUserId)
+	TeardownUser(email)
 }
 
 func TestLogin(t *testing.T) {
@@ -106,5 +106,5 @@ func TestLogin(t *testing.T) {
 		t.Errorf("token should be empty, but was: %s", token)
 	}
 
-	Teardown(recipeUserId)
+	TeardownUser(email)
 }

@@ -144,9 +144,9 @@ func (r *RecipeRepository) InsertRecipeUser(firstname string, lastname string, e
 	return id, nil
 }
 
-func (r *RecipeRepository) DeleteRecipeUser(recipeUserId int) (d bool, err error) {
-	q := "DELETE FROM recipe_user WHERE id=$1;"
-	_, err = r.db.SqlDb.Exec(q, recipeUserId)
+func (r *RecipeRepository) DeleteRecipeUser(email string) (d bool, err error) {
+	q := "DELETE FROM recipe_user WHERE email=$1;"
+	_, err = r.db.SqlDb.Exec(q, email)
 
 	if err != nil {
 		log.Print(err)

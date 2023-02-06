@@ -12,6 +12,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/gorilla/mux"
 	"github.com/recipe-api/models"
 	"github.com/recipe-api/recipeDb"
 	"github.com/recipe-api/repository"
@@ -101,10 +102,35 @@ func SetupToken(tu *TestUser) string {
 	return string(bodyBytes)
 }
 
-func Teardown(recipeUserId int) {
+func TeardownRecipe(recipeId int64) {
+	req, err := http.NewRequest("DELETE", fmt.Sprintf("/recipe/%v", recipeId), nil)
 	db := recipeDb.NewRecipeDb()
 	repo := repository.NewRecipeRepository(db)
-	repo.DeleteRecipeUser(recipeUserId)
+
+	if err != nil {
+		log.Panic(err)
+	}
+
+	vars := map[string]string{
+		"id": fmt.Sprint(recipeId),
+	}
+
+	req = mux.SetURLVars(req, vars)
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(DeleteRecipeHandler(&repo))
+
+	handler.ServeHTTP(rr, req)
+
+	if rr.Result().StatusCode != 200 {
+		fmt.Printf("error with teardown fixture expected: %v but got %v", 200, rr.Result().StatusCode)
+	}
+}
+
+func TeardownUser(email string) {
+	db := recipeDb.NewRecipeDb()
+	repo := repository.NewRecipeRepository(db)
+	repo.DeleteRecipeUser(email)
 }
 
 func randomString(length int) string {
