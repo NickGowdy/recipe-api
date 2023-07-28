@@ -5,5 +5,5 @@ sql:
     schema: "schema.sql"
     gen:
       go:
-        package: "recipe-api"
-        out: "recipe-api"
+        package: "database"
+        out: "database"
