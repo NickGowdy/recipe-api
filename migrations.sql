@@ -1,4 +1,4 @@
--- name: create-recipe_user-table
+-- +migrate Up
 CREATE TABLE IF NOT EXISTS recipe_user (
   id INTEGER PRIMARY KEY generated always as identity,
   first_name VARCHAR(45) NOT NULL,
@@ -10,7 +10,10 @@ CREATE TABLE IF NOT EXISTS recipe_user (
   UNIQUE(email)
 );
 
--- name: create-recipe-table
+-- +migrate Down
+DROP TABLE recipe_user
+
+-- +migrate Up
 CREATE TABLE IF NOT EXISTS recipe (
   id INTEGER PRIMARY KEY generated always as identity,
   recipe_user_id integer REFERENCES recipe_user (id),
@@ -20,7 +23,6 @@ CREATE TABLE IF NOT EXISTS recipe (
   updated_on TIMESTAMP NOT NULL
 );
 
--- name: create-ingredient-table
 CREATE TABLE IF NOT EXISTS ingredient (
   id INTEGER PRIMARY KEY generated always as identity,
   name VARCHAR(45) NOT NULL,
@@ -28,7 +30,6 @@ CREATE TABLE IF NOT EXISTS ingredient (
   updated_on TIMESTAMP NOT NULL
 );
 
--- name: create-quantity_type-table
 CREATE TABLE IF NOT EXISTS quantity_type (
   id INTEGER PRIMARY KEY generated always as identity,
   type VARCHAR(45) NOT NULL,
@@ -36,7 +37,6 @@ CREATE TABLE IF NOT EXISTS quantity_type (
   updated_on TIMESTAMP NOT NULL
 );
 
--- name: create-ingredient_quantity_type-table
 CREATE TABLE IF NOT EXISTS ingredient_quantity_type (
   id INTEGER PRIMARY KEY generated always as identity,
   ingredient_id INTEGER REFERENCES ingredient (id),
@@ -45,3 +45,8 @@ CREATE TABLE IF NOT EXISTS ingredient_quantity_type (
   created_on TIMESTAMP NOT NULL,
   updated_on TIMESTAMP NOT NULL
 );
+
+-- +migrate Down
+DROP TABLE ingredient_quantity_type
+DROP TABLE quantity_type
+DROP TABLE ingredient
