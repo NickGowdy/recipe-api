@@ -4,8 +4,8 @@ SELECT
 FROM
     recipe
 WHERE
-    id = $ 1
-    AND recipe_user_id = $ 2
+    id = $1
+    AND recipe_user_id = $2
 LIMIT
     1;
 
@@ -15,7 +15,7 @@ SELECT
 FROM
     recipe
 WHERE
-    recipe_user_id = $ 1
+    recipe_user_id = $1
 ORDER BY
     recipe_name;
 
@@ -29,25 +29,24 @@ INSERT INTO
         updated_on
     )
 VALUES
-    ($ 1, $ 2, $ 3, now(), now()) RETURNING *;
+    ($1, $2, $3, now(), now()) RETURNING *;
 
 -- name: UpdateRecipe :exec
 UPDATE
-INSERT INTO
-    recipe (
+    recipe 
         SET
-            recipe_name = $ 3,
-            recipe_steps = $ 4
+            recipe_name = $3,
+            recipe_steps = $4
         WHERE
-            id = $ 1
-            AND recipe_user_id = $ 2;
+            id = $1
+            AND recipe_user_id = $2;
 
 -- name: DeleteRecipe :exec
 DELETE FROM
     recipe
 WHERE
-    id = $ 1
-    AND recipe_user_id = $ 2;
+    id = $1
+    AND recipe_user_id = $2;
 
 -- name: CreateRecipeUser :one
 INSERT INTO
@@ -60,13 +59,13 @@ INSERT INTO
         updated_on
     )
 VALUES
-    ($ 1, $ 2, $ 3, $ 4, now(), now()) RETURNING *;
+    ($1, $2, $3, $4, now(), now()) RETURNING *;
 
 -- name: DeleteRecipeUser :exec
 DELETE FROM
     recipe_user
 WHERE
-    id = $ 1
+    id = $1;
 
 -- name: GetRecipeUserPwd :one
 SELECT
@@ -74,6 +73,6 @@ SELECT
 FROM
     recipe_user
 WHERE
-    email = $ 1
+    email = $1
 LIMIT
     1;
