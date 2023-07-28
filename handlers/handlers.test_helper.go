@@ -28,7 +28,7 @@ func SetupEnvVars() {
 	os.Setenv("port", "5432")
 }
 
-func GetToken() string {
+func GetTestToken() string {
 	db := recipeDb.NewRecipeDb()
 	repo := repository.NewRecipeRepository(db)
 

@@ -18,6 +18,7 @@ import (
 func TestGetRecipe(t *testing.T) {
 	SetupEnvVars()
 	recipeId := setupFixture()
+	// jwt := GetTestToken()
 
 	var recipe models.Recipe
 	db := recipeDb.NewRecipeDb()
@@ -36,7 +37,7 @@ func TestGetRecipe(t *testing.T) {
 	req = mux.SetURLVars(req, vars)
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(GetRecipeHandler(&repo))
+	handler := http.Handler(Middleware(GetRecipeHandler(&repo)))
 
 	handler.ServeHTTP(rr, req)
 
