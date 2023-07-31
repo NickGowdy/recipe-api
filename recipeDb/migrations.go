@@ -6,14 +6,10 @@ import (
 	"log"
 	"os"
 
-	"github.com/joho/godotenv"
 	migrate "github.com/rubenv/sql-migrate"
 )
 
 func Migrate() {
-	godotenv.Load()
-
-	// OR: Read migrations from a folder:
 	migrations := &migrate.FileMigrationSource{
 		Dir: "migrations",
 	}
@@ -25,6 +21,8 @@ func Migrate() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	defer db.Close()
 
 	n, err := migrate.Exec(db, "postgres", migrations, migrate.Up)
 	if err != nil {
