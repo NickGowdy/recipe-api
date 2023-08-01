@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/golang-jwt/jwt"
+	"github.com/gorilla/mux"
 	"github.com/recipe-api/repository"
 )
 
@@ -35,39 +37,39 @@ func GetAllRecipesHandler(repo *repository.RecipeRepository) http.HandlerFunc {
 	return http.HandlerFunc(fn)
 }
 
-// func GetRecipeHandler(repo *repository.RecipeRepository) http.HandlerFunc {
-// 	fn := func(w http.ResponseWriter, r *http.Request) {
-// 		recipeUserId, shouldReturn := getRecipeUserId(r, w)
-// 		if shouldReturn {
-// 			w.WriteHeader(http.StatusBadRequest)
-// 			return
-// 		}
-// 		recipeId, err := strconv.Atoi(mux.Vars(r)["id"])
+func GetRecipeHandler(repo *repository.RecipeRepository) http.HandlerFunc {
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		recipeUserId, shouldReturn := getRecipeUserId(r, w)
+		if shouldReturn {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		recipeId, err := strconv.Atoi(mux.Vars(r)["id"])
 
-// 		if err != nil {
-// 			log.Print(err)
-// 			w.WriteHeader(http.StatusBadRequest)
-// 		}
+		if err != nil {
+			log.Print(err)
+			w.WriteHeader(http.StatusBadRequest)
+		}
 
-// 		rs, err := repo.GetRecipe(recipeId, recipeUserId)
+		rs, err := repo.GetRecipe(recipeId, recipeUserId)
 
-// 		if err != nil {
-// 			log.Print(err)
-// 			w.WriteHeader(http.StatusNotFound)
-// 			return
-// 		}
+		if err != nil {
+			log.Print(err)
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
 
-// 		j, err := json.Marshal(rs)
+		j, err := json.Marshal(rs)
 
-// 		if err != nil {
-// 			log.Print(err)
-// 			w.WriteHeader(http.StatusInternalServerError)
-// 			return
-// 		}
-// 		w.Write(j)
-// 	}
-// 	return http.HandlerFunc(fn)
-// }
+		if err != nil {
+			log.Print(err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		w.Write(j)
+	}
+	return http.HandlerFunc(fn)
+}
 
 // func InsertRecipeHandler(repo *repository.RecipeRepository) http.HandlerFunc {
 // 	fn := func(w http.ResponseWriter, r *http.Request) {

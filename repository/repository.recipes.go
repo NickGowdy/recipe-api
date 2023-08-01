@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"github.com/recipe-api/database"
+	"github.com/recipe-api/models"
 )
 
 type RecipeRepository struct {
@@ -21,146 +22,127 @@ func NewRecipeRepository(queries *database.Queries, context *context.Context) Re
 }
 
 func (r *RecipeRepository) GetRecipes(recipeUserId int) ([]database.Recipe, error) {
-	var parent sql.NullInt32
+	var validRecipeUserId sql.NullInt32
 
-	if err := parent.Scan(&recipeUserId); err != nil {
+	if err := validRecipeUserId.Scan(&recipeUserId); err != nil {
 		log.Print(err)
 		return nil, err
 	}
 
-	recipes, err := r.queries.ListRecipes(*r.context, parent)
+	recipes, err := r.queries.ListRecipes(*r.context, validRecipeUserId)
 	if err != nil {
 		log.Print(err)
 	}
 
 	return recipes, err
-
 }
 
-// func (r *RecipeRepository) GetRecipe(recipeId int, recipeUserid int) (*models.Recipe, error) {
+func (r *RecipeRepository) GetRecipe(recipeId int, recipeUserId int) (*database.Recipe, error) {
 
-// 	row := r.db.SqlDb.QueryRow("SELECT * FROM recipe WHERE id=$1 AND recipe_user_id=$2", recipeId, recipeUserid)
-// 	var recipe models.Recipe
+	var validRecipeUserId sql.NullInt32
 
-// 	switch err := row.Scan(
-// 		&recipe.Id,
-// 		&recipe.RecipeUserId,
-// 		&recipe.RecipeName,
-// 		&recipe.RecipeSteps,
-// 		&recipe.CreatedOn,
-// 		&recipe.UpdatedOn,
-// 	); err {
-// 	case sql.ErrNoRows:
-// 		return nil, err
-// 	case nil:
-// 		return &recipe, nil
-// 	default:
-// 		panic(err)
-// 	}
-// }
+	if err := validRecipeUserId.Scan(&recipeUserId); err != nil {
+		log.Print(err)
+		return nil, err
+	}
 
-// func (r *RecipeRepository) InsertRecipe(recipeUserId int, ir *models.SaveRecipe) (b int64, err error) {
-// 	var id int64
-// 	var cols = "(recipe_user_id, recipe_name, recipe_steps, created_on, updated_on)"
-// 	var values = "($1, $2, $3, now(), now())"
+	recipe, err := r.queries.GetRecipe(*r.context, database.GetRecipeParams{ID: int32(recipeId), RecipeUserID: validRecipeUserId})
+	return &recipe, err
+}
 
-// 	var query = fmt.Sprintf(
-// 		"INSERT INTO recipe %s VALUES %s RETURNING id",
-// 		cols, values,
-// 	)
+func (r *RecipeRepository) InsertRecipe(recipeUserId int, ir *models.SaveRecipe) (b int32, err error) {
 
-// 	if err := r.db.SqlDb.QueryRow(
-// 		query,
-// 		recipeUserId, ir.RecipeName, ir.RecipeSteps,
-// 	).Scan(&id); err != nil {
-// 		panic(err)
-// 	}
+	var validRecipeUserId sql.NullInt32
 
-// 	if err != nil {
-// 		log.Print(err)
-// 		return 0, err
-// 	}
+	if err := validRecipeUserId.Scan(&recipeUserId); err != nil {
+		log.Print(err)
+		return 0, err
+	}
 
-// 	return id, nil
-// }
+	newRecipe, err := r.queries.CreateRecipe(*r.context, database.CreateRecipeParams{
+		RecipeUserID: validRecipeUserId,
+		RecipeName:   ir.RecipeName,
+		RecipeSteps:  ir.RecipeSteps,
+	})
 
-// func (r *RecipeRepository) UpdateRecipe(recipeid int, recipeUserId int, recipe *models.SaveRecipe) (d bool, err error) {
-// 	q := `
-// 		UPDATE recipe
-// 		SET recipe_name = $3, recipe_steps = $4
-// 		WHERE id = $1 AND recipe_user_id = $2;`
+	return newRecipe.ID, err
+}
 
-// 	_, err = r.db.SqlDb.Exec(q, recipeid, recipeUserId, recipe.RecipeName, recipe.RecipeSteps)
-// 	if err != nil {
-// 		log.Print(err)
-// 	}
+func (r *RecipeRepository) UpdateRecipe(recipeid int, recipeUserId int, recipe *models.SaveRecipe) (bool, error) {
 
-// 	return true, nil
-// }
+	var validRecipeUserId sql.NullInt32
 
-// func (r *RecipeRepository) DeleteRecipe(recipeId int, recipeUserId int) (d bool, err error) {
-// 	q := `DELETE FROM recipe WHERE id=$1 AND recipe_user_id=$2;`
-// 	_, err = r.db.SqlDb.Exec(q, recipeId, recipeUserId)
+	if err := validRecipeUserId.Scan(&recipeUserId); err != nil {
+		log.Print(err)
+		return false, err
+	}
 
-// 	if err != nil {
-// 		log.Print(err)
-// 	}
+	err := r.queries.UpdateRecipe(*r.context, database.UpdateRecipeParams{
+		ID:           int32(recipeid),
+		RecipeUserID: validRecipeUserId,
+		RecipeName:   recipe.RecipeName,
+		RecipeSteps:  recipe.RecipeSteps,
+	})
 
-// 	return true, nil
-// }
+	if err != nil {
+		log.Print(err)
+	}
 
-// func (r *RecipeRepository) InsertRecipeUser(firstname string, lastname string, email string, hashedPwd string) (b int64, err error) {
-// 	var id int64
-// 	var cols = "(first_name, last_name, email, password, created_on, updated_on)"
-// 	var values = "($1, $2, $3, $4, now(), now())"
+	return true, err
+}
 
-// 	var query = fmt.Sprintf(
-// 		"INSERT INTO recipe_user %s VALUES %s RETURNING id",
-// 		cols, values,
-// 	)
+func (r *RecipeRepository) DeleteRecipe(recipeId int, recipeUserId int) (d bool, err error) {
+	var validRecipeUserId sql.NullInt32
 
-// 	if err := r.db.SqlDb.QueryRow(
-// 		query,
-// 		firstname, lastname, email, hashedPwd,
-// 	).Scan(&id); err != nil {
-// 		log.Print(err)
-// 		return 0, err
-// 	}
+	if err := validRecipeUserId.Scan(&recipeUserId); err != nil {
+		log.Print(err)
+		return false, err
+	}
 
-// 	return id, nil
-// }
+	r.queries.DeleteRecipe(*r.context, database.DeleteRecipeParams{ID: int32(recipeId), RecipeUserID: validRecipeUserId})
 
-// func (r *RecipeRepository) DeleteRecipeUser(recipeUserId int) (d bool, err error) {
-// 	q := "DELETE FROM recipe_user WHERE id=$1;"
-// 	_, err = r.db.SqlDb.Exec(q, recipeUserId)
+	if err != nil {
+		log.Print(err)
+	}
 
-// 	if err != nil {
-// 		log.Print(err)
-// 	}
+	return true, err
+}
 
-// 	return true, nil
-// }
+func (r *RecipeRepository) InsertRecipeUser(firstname string, lastname string, email string, hashedPwd string) (int64, error) {
+	user, err := r.queries.CreateRecipeUser(*r.context, database.CreateRecipeUserParams{
+		FirstName: firstname,
+		LastName:  lastname,
+		Email:     email,
+		Password:  hashedPwd,
+	})
 
-// func (r *RecipeRepository) GetRecipeUserPwd(email string) (*models.RecipeUser, error) {
+	if err != nil {
+		log.Print(err)
+		return 0, err
+	}
 
-// 	row := r.db.SqlDb.QueryRow("SELECT * FROM recipe_user WHERE email=$1", email)
+	return int64(user.ID), err
+}
 
-// 	var ru models.RecipeUser
+func (r *RecipeRepository) DeleteRecipeUser(recipeUserId int) (bool, error) {
 
-// 	switch err := row.Scan(
-// 		&ru.Id,
-// 		&ru.Firstname,
-// 		&ru.Password,
-// 		&ru.Email,
-// 		&ru.Password,
-// 		&ru.CreatedOn,
-// 		&ru.UpdatedOn,
-// 	); err {
-// 	case sql.ErrNoRows:
-// 		return nil, nil
-// 	case nil:
-// 		return &ru, nil
-// 	default:
-// 		panic(err)
-// 	}
-// }
+	err := r.queries.DeleteRecipeUser(*r.context, int32(recipeUserId))
+
+	if err != nil {
+		log.Print(err)
+		return false, err
+	}
+	return true, err
+}
+
+func (r *RecipeRepository) GetRecipeUserPwd(email string) (*database.RecipeUser, error) {
+
+	user, err := r.queries.GetRecipeUserPwd(*r.context, email)
+
+	if err != nil {
+		log.Print(err)
+		return nil, err
+	}
+
+	return &user, err
+}
