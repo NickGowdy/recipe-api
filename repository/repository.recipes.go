@@ -46,8 +46,6 @@ func (r *RecipeRepository) InsertRecipe(recipeUserId int, ir *models.SaveRecipe)
 
 	var validRecipeUserId = int32(recipeUserId)
 
-	validRecipeUserId = int32(recipeUserId)
-
 	newRecipe, err := r.queries.CreateRecipe(*r.context, database.CreateRecipeParams{
 		RecipeUserID: validRecipeUserId,
 		RecipeName:   ir.RecipeName,
