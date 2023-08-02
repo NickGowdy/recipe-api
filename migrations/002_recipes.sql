@@ -1,6 +1,7 @@
+-- +migrate Up
 CREATE TABLE IF NOT EXISTS recipe (
   id INTEGER PRIMARY KEY generated always as identity,
-  recipe_user_id integer REFERENCES recipe_user (id),
+  recipe_user_id integer REFERENCES recipe_user (id) NOT NULL,
   recipe_name VARCHAR(45) NOT NULL,
   recipe_steps VARCHAR NOT NULL,
   created_on TIMESTAMP NOT NULL,

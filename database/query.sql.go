@@ -7,7 +7,6 @@ package database
 
 import (
 	"context"
-	"database/sql"
 )
 
 const createRecipe = `-- name: CreateRecipe :one
@@ -24,7 +23,7 @@ VALUES
 `
 
 type CreateRecipeParams struct {
-	RecipeUserID sql.NullInt32
+	RecipeUserID int32
 	RecipeName   string
 	RecipeSteps  string
 }
@@ -94,7 +93,7 @@ WHERE
 
 type DeleteRecipeParams struct {
 	ID           int32
-	RecipeUserID sql.NullInt32
+	RecipeUserID int32
 }
 
 func (q *Queries) DeleteRecipe(ctx context.Context, arg DeleteRecipeParams) error {
@@ -128,7 +127,7 @@ LIMIT
 
 type GetRecipeParams struct {
 	ID           int32
-	RecipeUserID sql.NullInt32
+	RecipeUserID int32
 }
 
 func (q *Queries) GetRecipe(ctx context.Context, arg GetRecipeParams) (Recipe, error) {
@@ -182,7 +181,7 @@ ORDER BY
     recipe_name
 `
 
-func (q *Queries) ListRecipes(ctx context.Context, recipeUserID sql.NullInt32) ([]Recipe, error) {
+func (q *Queries) ListRecipes(ctx context.Context, recipeUserID int32) ([]Recipe, error) {
 	rows, err := q.db.QueryContext(ctx, listRecipes, recipeUserID)
 	if err != nil {
 		return nil, err
@@ -225,7 +224,7 @@ UPDATE
 
 type UpdateRecipeParams struct {
 	ID           int32
-	RecipeUserID sql.NullInt32
+	RecipeUserID int32
 	RecipeName   string
 	RecipeSteps  string
 }

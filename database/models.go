@@ -34,7 +34,7 @@ type QuantityType struct {
 
 type Recipe struct {
 	ID           int32
-	RecipeUserID sql.NullInt32
+	RecipeUserID int32
 	RecipeName   string
 	RecipeSteps  string
 	CreatedOn    time.Time
