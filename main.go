@@ -31,10 +31,10 @@ func main() {
 
 	queries := database.New(db)
 
-	ctxTimeout, cancel := context.WithTimeout(context.Background(), time.Second*30)
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
 
-	repo := repository.NewRecipeRepository(queries, &ctxTimeout)
+	repo := repository.NewRecipeRepository(queries, &ctx)
 
 	handlers.SetupRoutes(&repo)
 }

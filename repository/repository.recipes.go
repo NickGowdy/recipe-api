@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"database/sql"
 	"log"
 
 	"github.com/recipe-api/database"
@@ -22,12 +21,8 @@ func NewRecipeRepository(queries *database.Queries, context *context.Context) Re
 }
 
 func (r *RecipeRepository) GetRecipes(recipeUserId int) ([]database.Recipe, error) {
-	var validRecipeUserId sql.NullInt32
 
-	if err := validRecipeUserId.Scan(&recipeUserId); err != nil {
-		log.Print(err)
-		return nil, err
-	}
+	var validRecipeUserId = int32(recipeUserId)
 
 	recipes, err := r.queries.ListRecipes(*r.context, validRecipeUserId)
 	if err != nil {
@@ -39,12 +34,9 @@ func (r *RecipeRepository) GetRecipes(recipeUserId int) ([]database.Recipe, erro
 
 func (r *RecipeRepository) GetRecipe(recipeId int, recipeUserId int) (*database.Recipe, error) {
 
-	var validRecipeUserId sql.NullInt32
+	var validRecipeUserId = int32(recipeUserId)
 
-	if err := validRecipeUserId.Scan(&recipeUserId); err != nil {
-		log.Print(err)
-		return nil, err
-	}
+	validRecipeUserId = int32(recipeUserId)
 
 	recipe, err := r.queries.GetRecipe(*r.context, database.GetRecipeParams{ID: int32(recipeId), RecipeUserID: validRecipeUserId})
 	return &recipe, err
@@ -52,12 +44,9 @@ func (r *RecipeRepository) GetRecipe(recipeId int, recipeUserId int) (*database.
 
 func (r *RecipeRepository) InsertRecipe(recipeUserId int, ir *models.SaveRecipe) (b int32, err error) {
 
-	var validRecipeUserId sql.NullInt32
+	var validRecipeUserId = int32(recipeUserId)
 
-	if err := validRecipeUserId.Scan(&recipeUserId); err != nil {
-		log.Print(err)
-		return 0, err
-	}
+	validRecipeUserId = int32(recipeUserId)
 
 	newRecipe, err := r.queries.CreateRecipe(*r.context, database.CreateRecipeParams{
 		RecipeUserID: validRecipeUserId,
@@ -70,12 +59,9 @@ func (r *RecipeRepository) InsertRecipe(recipeUserId int, ir *models.SaveRecipe)
 
 func (r *RecipeRepository) UpdateRecipe(recipeid int, recipeUserId int, recipe *models.SaveRecipe) (bool, error) {
 
-	var validRecipeUserId sql.NullInt32
+	var validRecipeUserId = int32(recipeUserId)
 
-	if err := validRecipeUserId.Scan(&recipeUserId); err != nil {
-		log.Print(err)
-		return false, err
-	}
+	validRecipeUserId = int32(recipeUserId)
 
 	err := r.queries.UpdateRecipe(*r.context, database.UpdateRecipeParams{
 		ID:           int32(recipeid),
@@ -92,12 +78,9 @@ func (r *RecipeRepository) UpdateRecipe(recipeid int, recipeUserId int, recipe *
 }
 
 func (r *RecipeRepository) DeleteRecipe(recipeId int, recipeUserId int) (d bool, err error) {
-	var validRecipeUserId sql.NullInt32
+	var validRecipeUserId = int32(recipeUserId)
 
-	if err := validRecipeUserId.Scan(&recipeUserId); err != nil {
-		log.Print(err)
-		return false, err
-	}
+	validRecipeUserId = int32(recipeUserId)
 
 	r.queries.DeleteRecipe(*r.context, database.DeleteRecipeParams{ID: int32(recipeId), RecipeUserID: validRecipeUserId})
 
