@@ -9,23 +9,35 @@ import (
 	"github.com/recipe-api/repository"
 )
 
-func SetupRoutes(repo *repository.RecipeRepository) {
+type Handlers struct {
+	userRepository   *repository.UserRepository
+	recipeRepository *repository.RecipeRepository
+}
+
+func NewHandlers(userRepository *repository.UserRepository, recipeRepository *repository.RecipeRepository) *Handlers {
+	return &Handlers{
+		userRepository:   userRepository,
+		recipeRepository: recipeRepository,
+	}
+}
+
+func (r *Handlers) SetupRoutes() {
 	log.Println("Loading routes...")
-	r := mux.NewRouter()
+	mr := mux.NewRouter()
 
-	r.HandleFunc("/register", PostRegisterHandler(repo)).Methods("POST")
-	r.HandleFunc("/login", PostLoginHandler(repo)).Methods("POST")
+	mr.HandleFunc("/register", PostRegisterHandler(r.userRepository)).Methods("POST")
+	mr.HandleFunc("/login", PostLoginHandler(r.userRepository)).Methods("POST")
 
-	r.Handle("/recipe", Middleware(GetAllRecipesHandler(repo))).Methods("GET")
-	r.Handle("/recipe/{id}", Middleware(GetRecipeHandler(repo))).Methods("GET")
-	r.Handle("/recipe", Middleware(InsertRecipeHandler(repo))).Methods("POST")
-	r.Handle("/recipe/{id}", Middleware(UpdateRecipeHandler(repo))).Methods("PUT")
-	r.Handle("/recipe/{id}", Middleware(DeleteRecipeHandler(repo))).Methods("DELETE")
+	mr.Handle("/recipe", Middleware(GetAllRecipesHandler(r.recipeRepository))).Methods("GET")
+	mr.Handle("/recipe/{id}", Middleware(GetRecipeHandler(r.recipeRepository))).Methods("GET")
+	mr.Handle("/recipe", Middleware(InsertRecipeHandler(r.recipeRepository))).Methods("POST")
+	mr.Handle("/recipe/{id}", Middleware(UpdateRecipeHandler(r.recipeRepository))).Methods("PUT")
+	mr.Handle("/recipe/{id}", Middleware(DeleteRecipeHandler(r.recipeRepository))).Methods("DELETE")
 
-	r.HandleFunc("/health-check", HealthCheck).Methods("GET")
+	mr.HandleFunc("/health-check", HealthCheck).Methods("GET")
 
-	http.Handle("api/", r)
-	err := http.ListenAndServe(":8080", r)
+	http.Handle("api/", mr)
+	err := http.ListenAndServe(":8080", mr)
 	if err != nil {
 		log.Fatal(err)
 	}

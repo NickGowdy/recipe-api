@@ -11,12 +11,15 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/recipe-api/database"
 	"github.com/recipe-api/handlers"
+	"github.com/recipe-api/recipeDb"
 	"github.com/recipe-api/repository"
+
+	_ "github.com/lib/pq" // <------------ here
 )
 
 const (
 	driver  = "postgres"
-	timeout = 30
+	seconds = 30
 )
 
 func main() {
@@ -34,12 +37,18 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// need this for now.....
+	recipeDb.Migrate()
+
 	queries := database.New(db)
 
-	ctx, cancel := context.WithTimeout(context.Background(), timeout*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), seconds*time.Second)
 	defer cancel()
 
-	repo := repository.NewRecipeRepository(queries, &ctx)
+	userRepository := repository.NewUserRepository(queries, &ctx)
+	recipeRepository := repository.NewRecipeRepository(queries, &ctx)
 
-	handlers.SetupRoutes(&repo)
+	routes := handlers.NewHandlers(&userRepository, &recipeRepository)
+
+	routes.SetupRoutes()
 }

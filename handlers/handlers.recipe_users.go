@@ -13,7 +13,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func PostRegisterHandler(repo *repository.RecipeRepository) http.HandlerFunc {
+func PostRegisterHandler(repo *repository.UserRepository) http.HandlerFunc {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		var register models.Register
 		if err := json.NewDecoder(r.Body).Decode(&register); err != nil {
@@ -50,7 +50,7 @@ func PostRegisterHandler(repo *repository.RecipeRepository) http.HandlerFunc {
 	return http.HandlerFunc(fn)
 }
 
-func PostLoginHandler(repo *repository.RecipeRepository) http.HandlerFunc {
+func PostLoginHandler(repo *repository.UserRepository) http.HandlerFunc {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		creds, shouldReturn := getCredentials(r, w)
 		if shouldReturn {
