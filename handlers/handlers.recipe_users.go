@@ -68,7 +68,7 @@ func PostLoginHandler(repo *repository.RecipeRepository) http.HandlerFunc {
 			w.WriteHeader(http.StatusUnauthorized)
 		}
 
-		tokenString, err := generateJWT(ru.Id)
+		tokenString, err := generateJWT(int64(ru.ID))
 		if err != nil {
 			log.Print(err)
 			w.WriteHeader(http.StatusInternalServerError)
