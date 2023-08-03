@@ -11,22 +11,27 @@ services:
       - "5432:5432"
     volumes:
       - data:/var/lib/postgresql/data
-  # server:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile
-  #   env_file: .env
-  #   environment:
-  #     - APP_ENV=development
-  #   restart: always
-  #   depends_on:
-  #     - database
-  #   networks:
-  #     - default
-  #   tty: true
-  #   volumes:
-  #     - .:/app
-  #   ports:
-  #   - "8080:8080"
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - APP_ENV=development
+      - user=postgres
+      - password=postgres
+      - dbname=recipes_db
+      - dbport=5432
+      - host=database
+      - serverport=8080
+    restart: always
+    depends_on:
+      - database
+    networks:
+      - default
+    tty: true
+    volumes:
+      - .:/app
+    ports:
+    - "8080:8080"
 volumes:
   data:
