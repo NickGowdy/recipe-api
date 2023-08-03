@@ -11,15 +11,16 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/recipe-api/database"
 	"github.com/recipe-api/handlers"
-	"github.com/recipe-api/recipeDb"
 	"github.com/recipe-api/repository"
+	migrate "github.com/rubenv/sql-migrate"
 
-	_ "github.com/lib/pq" // <------------ here
+	_ "github.com/lib/pq"
 )
 
 const (
-	driver  = "postgres"
-	seconds = 30
+	driver        = "postgres"
+	migrationsDir = "migrations"
+	seconds       = 30
 )
 
 func main() {
@@ -37,8 +38,15 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// need this for now.....
-	recipeDb.Migrate()
+	migrations := &migrate.FileMigrationSource{
+		Dir: migrationsDir,
+	}
+
+	number, err := migrate.Exec(db, driver, migrations, migrate.Up)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("Applied %d migrations!\n", number)
 
 	queries := database.New(db)
 
