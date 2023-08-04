@@ -25,23 +25,6 @@ type RecipeUser struct {
 	UpdatedOn time.Time `json:"updatedOn"`
 }
 
-type SaveRecipe struct {
-	RecipeName  string `json:"recipeName"`
-	RecipeSteps string `json:"recipeSteps"`
-}
-
-type Credentials struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
-}
-
-type Register struct {
-	Firstname string `json:"firstname"`
-	Lastname  string `json:"lastname"`
-	Email     string `json:"email"`
-	Password  string `json:"password"`
-}
-
 type Ingredient struct {
 	Id        int       `json:"id"`
 	Name      string    `json:"name"`

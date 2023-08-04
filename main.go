@@ -13,7 +13,9 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/recipe-api/database"
 	"github.com/recipe-api/handlers"
+	"github.com/recipe-api/recipe"
 	"github.com/recipe-api/repository"
+	"github.com/recipe-api/user"
 	migrate "github.com/rubenv/sql-migrate"
 
 	_ "github.com/lib/pq"
@@ -28,7 +30,7 @@ const (
 func main() {
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal(err)
+		log.Panic(err)
 	}
 
 	psqlconn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
@@ -67,17 +69,20 @@ func main() {
 	userRepository := repository.NewUserRepository(queries, &ctx)
 	recipeRepository := repository.NewRecipeRepository(queries, &ctx)
 
+	user := user.NewUser(userRepository)
+	recipe := recipe.NewRecipe(recipeRepository)
+
 	log.Println("Loading routes...")
 	mr := mux.NewRouter()
 
-	mr.HandleFunc("/register", handlers.PostRegisterHandler(&userRepository)).Methods("POST")
-	mr.HandleFunc("/login", handlers.PostLoginHandler(&userRepository)).Methods("POST")
+	mr.HandleFunc("/register", user.Register()).Methods("POST")
+	mr.HandleFunc("/login", user.Login()).Methods("POST")
 
-	mr.Handle("/recipe", handlers.Middleware(handlers.GetAllRecipesHandler(&recipeRepository))).Methods("GET")
-	mr.Handle("/recipe/{id}", handlers.Middleware(handlers.GetRecipeHandler(&recipeRepository))).Methods("GET")
-	mr.Handle("/recipe", handlers.Middleware(handlers.InsertRecipeHandler(&recipeRepository))).Methods("POST")
-	mr.Handle("/recipe/{id}", handlers.Middleware(handlers.UpdateRecipeHandler(&recipeRepository))).Methods("PUT")
-	mr.Handle("/recipe/{id}", handlers.Middleware(handlers.DeleteRecipeHandler(&recipeRepository))).Methods("DELETE")
+	mr.Handle("/recipe", handlers.Middleware(recipe.Get())).Methods("GET")
+	mr.Handle("/recipe/{id}", handlers.Middleware(recipe.GetAll())).Methods("GET")
+	mr.Handle("/recipe", handlers.Middleware(recipe.Insert())).Methods("POST")
+	mr.Handle("/recipe/{id}", handlers.Middleware(recipe.Update())).Methods("PUT")
+	mr.Handle("/recipe/{id}", handlers.Middleware(recipe.Delete())).Methods("DELETE")
 
 	mr.HandleFunc("/health-check", HealthCheck).Methods("GET")
 

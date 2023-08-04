@@ -5,12 +5,16 @@ import (
 	"log"
 
 	"github.com/recipe-api/database"
-	"github.com/recipe-api/models"
 )
 
 type RecipeRepository struct {
 	queries *database.Queries
 	context *context.Context
+}
+
+type SaveRecipe struct {
+	RecipeName  string `json:"recipeName"`
+	RecipeSteps string `json:"recipeSteps"`
 }
 
 func NewRecipeRepository(queries *database.Queries, context *context.Context) RecipeRepository {
@@ -42,7 +46,7 @@ func (r *RecipeRepository) GetRecipe(recipeId int, recipeUserId int) (*database.
 	return &recipe, err
 }
 
-func (r *RecipeRepository) InsertRecipe(recipeUserId int, ir *models.SaveRecipe) (b int32, err error) {
+func (r *RecipeRepository) InsertRecipe(recipeUserId int, ir *SaveRecipe) (b int32, err error) {
 
 	var validRecipeUserId = int32(recipeUserId)
 
@@ -55,7 +59,7 @@ func (r *RecipeRepository) InsertRecipe(recipeUserId int, ir *models.SaveRecipe)
 	return newRecipe.ID, err
 }
 
-func (r *RecipeRepository) UpdateRecipe(recipeid int, recipeUserId int, recipe *models.SaveRecipe) (bool, error) {
+func (r *RecipeRepository) UpdateRecipe(recipeid int, recipeUserId int, recipe *SaveRecipe) (bool, error) {
 
 	var validRecipeUserId = int32(recipeUserId)
 

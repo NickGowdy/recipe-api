@@ -12,6 +12,18 @@ type UserRepository struct {
 	context *context.Context
 }
 
+type Credentials struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+type Register struct {
+	Firstname string `json:"firstname"`
+	Lastname  string `json:"lastname"`
+	Email     string `json:"email"`
+	Password  string `json:"password"`
+}
+
 func NewUserRepository(queries *database.Queries, context *context.Context) UserRepository {
 	return UserRepository{
 		queries: queries,

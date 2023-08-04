@@ -1,4 +1,4 @@
-package handlers
+package user
 
 import (
 	"encoding/json"
@@ -8,15 +8,24 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt"
-	"github.com/recipe-api/models"
 	"github.com/recipe-api/repository"
 	"golang.org/x/crypto/bcrypt"
 )
 
-func PostRegisterHandler(repo *repository.UserRepository) http.HandlerFunc {
-	fn := func(w http.ResponseWriter, r *http.Request) {
-		var register models.Register
-		if err := json.NewDecoder(r.Body).Decode(&register); err != nil {
+type User struct {
+	repo *repository.UserRepository
+}
+
+func NewUser(repo repository.UserRepository) *User {
+	return &User{
+		repo: &repo,
+	}
+}
+
+func (u User) Register() http.HandlerFunc {
+	fn := func(w http.ResponseWriter, req *http.Request) {
+		var register repository.Register
+		if err := json.NewDecoder(req.Body).Decode(&register); err != nil {
 			log.Print(err)
 			w.WriteHeader(http.StatusBadRequest)
 			return
@@ -30,7 +39,7 @@ func PostRegisterHandler(repo *repository.UserRepository) http.HandlerFunc {
 		}
 
 		hashedPasswordStr := string(hashedPassword)
-		m, err := repo.InsertRecipeUser(register.Firstname, register.Lastname, register.Email, hashedPasswordStr)
+		m, err := u.repo.InsertRecipeUser(register.Firstname, register.Lastname, register.Email, hashedPasswordStr)
 
 		if err != nil {
 			log.Print(err)
@@ -50,14 +59,14 @@ func PostRegisterHandler(repo *repository.UserRepository) http.HandlerFunc {
 	return http.HandlerFunc(fn)
 }
 
-func PostLoginHandler(repo *repository.UserRepository) http.HandlerFunc {
-	fn := func(w http.ResponseWriter, r *http.Request) {
-		creds, shouldReturn := getCredentials(r, w)
+func (u User) Login() http.HandlerFunc {
+	fn := func(w http.ResponseWriter, req *http.Request) {
+		creds, shouldReturn := getCredentials(req, w)
 		if shouldReturn {
 			return
 		}
 
-		ru, err := repo.GetRecipeUserPwd(creds.Email)
+		ru, err := u.repo.GetRecipeUserPwd(creds.Email)
 		if err != nil {
 			log.Print(err)
 			w.WriteHeader(http.StatusNotFound)
@@ -80,12 +89,12 @@ func PostLoginHandler(repo *repository.UserRepository) http.HandlerFunc {
 	return http.HandlerFunc(fn)
 }
 
-func getCredentials(r *http.Request, w http.ResponseWriter) (models.Credentials, bool) {
-	var creds models.Credentials
+func getCredentials(r *http.Request, w http.ResponseWriter) (repository.Credentials, bool) {
+	var creds repository.Credentials
 	if err := json.NewDecoder(r.Body).Decode(&creds); err != nil {
 		log.Print(err)
 		w.WriteHeader(http.StatusBadRequest)
-		return models.Credentials{}, true
+		return repository.Credentials{}, true
 	}
 	return creds, false
 }
