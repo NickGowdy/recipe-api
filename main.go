@@ -92,7 +92,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Println("API is now up...")
 }
 
 func HealthCheck(w http.ResponseWriter, r *http.Request) {
