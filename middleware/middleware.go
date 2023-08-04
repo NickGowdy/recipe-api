@@ -1,4 +1,4 @@
-package handlers
+package middleware
 
 import (
 	"context"
@@ -12,7 +12,7 @@ import (
 
 var claimsKey string = "claims"
 
-func Middleware(next http.Handler) http.Handler {
+func VerifyToken(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		claims, err := GetClaimsFromToken(r)
 

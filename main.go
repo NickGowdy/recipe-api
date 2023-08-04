@@ -12,7 +12,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 	"github.com/recipe-api/database"
-	"github.com/recipe-api/handlers"
+	"github.com/recipe-api/middleware"
 	"github.com/recipe-api/recipe"
 	"github.com/recipe-api/repository"
 	"github.com/recipe-api/user"
@@ -78,11 +78,11 @@ func main() {
 	mr.HandleFunc("/register", user.Register()).Methods("POST")
 	mr.HandleFunc("/login", user.Login()).Methods("POST")
 
-	mr.Handle("/recipe", handlers.Middleware(recipe.Get())).Methods("GET")
-	mr.Handle("/recipe/{id}", handlers.Middleware(recipe.GetAll())).Methods("GET")
-	mr.Handle("/recipe", handlers.Middleware(recipe.Insert())).Methods("POST")
-	mr.Handle("/recipe/{id}", handlers.Middleware(recipe.Update())).Methods("PUT")
-	mr.Handle("/recipe/{id}", handlers.Middleware(recipe.Delete())).Methods("DELETE")
+	mr.Handle("/recipe", middleware.VerifyToken(recipe.Get())).Methods("GET")
+	mr.Handle("/recipe/{id}", middleware.VerifyToken(recipe.GetAll())).Methods("GET")
+	mr.Handle("/recipe", middleware.VerifyToken(recipe.Insert())).Methods("POST")
+	mr.Handle("/recipe/{id}", middleware.VerifyToken(recipe.Update())).Methods("PUT")
+	mr.Handle("/recipe/{id}", middleware.VerifyToken(recipe.Delete())).Methods("DELETE")
 
 	mr.HandleFunc("/health-check", HealthCheck).Methods("GET")
 
