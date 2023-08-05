@@ -1,0 +1,313 @@
+package recipe
+
+import (
+	"context"
+	"database/sql"
+	"fmt"
+	"log"
+	"os"
+	"testing"
+	"time"
+
+	_ "github.com/lib/pq"
+	"github.com/recipe-api/database"
+	"github.com/recipe-api/repository"
+	"github.com/recipe-api/user"
+)
+
+const (
+	driver      = "postgres"
+	seconds     = 30
+	firstname   = "John"
+	lastname    = "Doe"
+	email       = "johndoe@test.com"
+	password    = "password123!"
+	recipeName  = "something yummy"
+	recipeSteps = "some yummy recipe steps"
+)
+
+func TestGetRecipe(t *testing.T) {
+	os.Setenv("user", "postgres")
+	os.Setenv("password", "postgres")
+	os.Setenv("dbname", "recipes_db")
+	os.Setenv("host", "localhost")
+	os.Setenv("dbport", "5432")
+
+	psqlconn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+		os.Getenv("host"), os.Getenv("dbport"), os.Getenv("user"), os.Getenv("password"), os.Getenv("dbname"))
+
+	db, err := sql.Open(driver, psqlconn)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+	// defer db.Close()
+
+	queries := database.New(db)
+
+	ctx, cancel := context.WithTimeout(context.Background(), seconds*time.Second)
+	defer cancel()
+	userRepo := repository.NewUserRepository(queries, &ctx)
+	recipeRepo := repository.NewRecipeRepository(queries, &ctx)
+	user := user.NewUser(&userRepo)
+	recipe := NewRecipe(&recipeRepo)
+
+	userId, _ := user.Register(firstname, lastname, email, password)
+	recipeId, err := recipe.Insert(int(userId),
+		repository.SaveRecipe{RecipeName: recipeName, RecipeSteps: recipeSteps})
+
+	if err != nil {
+		t.Errorf("expected nil but is: %v", err)
+	}
+
+	if recipeId == 0 {
+		t.Errorf("expected recipeId to be > than 0 but is: %d", recipeId)
+	}
+
+	myRecipe, err := recipe.Get(int(recipeId), int(userId))
+
+	if err != nil {
+		t.Errorf("expected nil but is: %v", err)
+	}
+
+	if myRecipe.RecipeName != recipeName {
+		t.Errorf("expected %s but is: %s", recipeName, myRecipe.RecipeSteps)
+	}
+}
+
+// func TestInsertRecipe(t *testing.T) {
+// 	SetupEnvVars()
+
+// 	recipeToInsert := models.Recipe{
+// 		Id:          0,
+// 		RecipeName:  "Nick's other recipe",
+// 		RecipeSteps: "Some other steps for Nick's recipe",
+// 	}
+// 	body, _ := json.Marshal(recipeToInsert)
+// 	db := recipeDb.NewRecipeDb()
+// 	repo := repository.NewRecipeRepository(db)
+
+// 	req, err := http.NewRequest("POST", "/recipe", bytes.NewReader(body))
+// 	if err != nil {
+// 		t.Fatal(err)
+// 	}
+
+// 	rr := httptest.NewRecorder()
+// 	handler := http.HandlerFunc(InsertRecipeHandler(&repo))
+
+// 	handler.ServeHTTP(rr, req)
+
+// 	if status := rr.Code; status != http.StatusCreated {
+// 		t.Errorf("handler returned wrong status code: got %v want %v",
+// 			status, http.StatusOK)
+// 	}
+
+// 	req, err = http.NewRequest("GET", "/recipe/1", nil)
+// 	if err != nil {
+// 		t.Fatal(err)
+// 	}
+
+// 	var recipeId int64
+
+// 	json.NewDecoder(rr.Body).Decode(&recipeId)
+
+// 	vars := map[string]string{
+// 		"id": fmt.Sprint(recipeId),
+// 	}
+
+// 	req = mux.SetURLVars(req, vars)
+
+// 	rr = httptest.NewRecorder()
+// 	handler = http.HandlerFunc(GetRecipeHandler(&repo))
+
+// 	handler.ServeHTTP(rr, req)
+
+// 	if status := rr.Code; status != http.StatusOK {
+// 		t.Errorf("handler returned wrong status code: got %v want %v",
+// 			status, http.StatusOK)
+// 	}
+
+// 	var recipe models.Recipe
+// 	json.NewDecoder(rr.Body).Decode(&recipe)
+
+// 	if recipe.Id == 0 {
+// 		t.Errorf("recipe id is wrong value: got %v want %v",
+// 			0, recipe.Id)
+// 	}
+
+// 	if recipe.RecipeName != recipeToInsert.RecipeName {
+// 		t.Errorf("recipe id is wrong value: got %v want %v",
+// 			recipe.RecipeName, recipeToInsert.RecipeName)
+// 	}
+
+// 	if recipe.RecipeSteps != recipeToInsert.RecipeSteps {
+// 		t.Errorf("recipe id is wrong value: got %v want %v",
+// 			recipe.RecipeSteps, recipeToInsert.RecipeSteps)
+// 	}
+
+// 	teardownFixture(recipeId)
+// }
+
+// func TestUpdateRecipe(t *testing.T) {
+// 	SetupEnvVars()
+// 	recipeId := setupFixture()
+
+// 	var recipe models.Recipe
+// 	db := recipeDb.NewRecipeDb()
+// 	repo := repository.NewRecipeRepository(db)
+
+// 	recipeToUpdate := models.Recipe{
+// 		Id:          recipeId,
+// 		RecipeName:  "This is the new name",
+// 		RecipeSteps: "These are the new steps",
+// 	}
+
+// 	body, _ := json.Marshal(recipeToUpdate)
+
+// 	req, err := http.NewRequest("PUT", fmt.Sprintf("/recipe/%v", recipeId), bytes.NewReader(body))
+// 	if err != nil {
+// 		t.Fatal(err)
+// 	}
+
+// 	vars := map[string]string{
+// 		"id": fmt.Sprint(recipeId),
+// 	}
+
+// 	req = mux.SetURLVars(req, vars)
+
+// 	rr := httptest.NewRecorder()
+// 	handler := http.HandlerFunc(UpdateRecipeHandler(&repo))
+
+// 	handler.ServeHTTP(rr, req)
+
+// 	if status := rr.Code; status != http.StatusOK {
+// 		t.Errorf("handler returned wrong status code: got %v want %v",
+// 			status, http.StatusOK)
+// 	}
+
+// 	req = mux.SetURLVars(req, vars)
+
+// 	rr = httptest.NewRecorder()
+// 	handler = http.HandlerFunc(GetRecipeHandler(&repo))
+
+// 	handler.ServeHTTP(rr, req)
+
+// 	if status := rr.Code; status != http.StatusOK {
+// 		t.Errorf("handler returned wrong status code: got %v want %v",
+// 			status, http.StatusOK)
+// 	}
+
+// 	json.NewDecoder(rr.Body).Decode(&recipe)
+
+// 	if recipe.Id != recipeId {
+// 		t.Errorf("recipe id is wrong value: got %v want %v",
+// 			recipe.Id, 1)
+// 	}
+
+// 	if recipe.RecipeName != recipeToUpdate.RecipeName {
+// 		t.Errorf("recipe id is wrong value: got %v want %v",
+// 			recipe.RecipeName, recipeToUpdate.RecipeName)
+// 	}
+
+// 	if recipe.RecipeSteps != recipeToUpdate.RecipeSteps {
+// 		t.Errorf("recipe id is wrong value: got %v want %v",
+// 			recipe.RecipeSteps, recipeToUpdate.RecipeSteps)
+// 	}
+
+// 	teardownFixture(recipeId)
+// }
+
+// func TestDeleteRecipe(t *testing.T) {
+// 	SetupEnvVars()
+// 	recipeId := setupFixture()
+
+// 	req, err := http.NewRequest("DELETE", fmt.Sprintf("/recipe/%v", recipeId), nil)
+// 	db := recipeDb.NewRecipeDb()
+// 	repo := repository.NewRecipeRepository(db)
+// 	if err != nil {
+// 		log.Panic(err)
+// 	}
+
+// 	vars := map[string]string{
+// 		"id": fmt.Sprint(recipeId),
+// 	}
+
+// 	req = mux.SetURLVars(req, vars)
+
+// 	rr := httptest.NewRecorder()
+// 	handler := http.HandlerFunc(DeleteRecipeHandler(&repo))
+
+// 	handler.ServeHTTP(rr, req)
+
+// 	if rr.Result().StatusCode != 200 {
+// 		fmt.Printf("error expected: %v but got %v", 200, rr.Result().StatusCode)
+// 	}
+
+// 	req, err = http.NewRequest("GET", fmt.Sprintf("/recipe/%v", recipeId), nil)
+// 	if err != nil {
+// 		t.Fatal(err)
+// 	}
+
+// 	req = mux.SetURLVars(req, vars)
+
+// 	rr = httptest.NewRecorder()
+// 	handler = http.HandlerFunc(GetRecipeHandler(&repo))
+
+// 	handler.ServeHTTP(rr, req)
+
+// 	if status := rr.Code; status != http.StatusNotFound {
+// 		t.Errorf("handler returned wrong status code: got %v want %v",
+// 			status, http.StatusOK)
+// 	}
+// }
+
+// func setupFixture() int64 {
+// 	recipeToInsert := models.Recipe{
+// 		Id:          0,
+// 		RecipeName:  "Nick's recipe",
+// 		RecipeSteps: "Some steps for Nick's recipe",
+// 	}
+// 	body, _ := json.Marshal(recipeToInsert)
+// 	db := recipeDb.NewRecipeDb()
+// 	repo := repository.NewRecipeRepository(db)
+
+// 	req, err := http.NewRequest("POST", "/recipe", bytes.NewReader(body))
+// 	if err != nil {
+// 		log.Panic(err)
+// 	}
+
+// 	rr := httptest.NewRecorder()
+// 	handler := http.HandlerFunc(InsertRecipeHandler(&repo))
+
+// 	handler.ServeHTTP(rr, req)
+
+// 	var id int64
+
+// 	json.NewDecoder(rr.Body).Decode(&id)
+// 	return id
+// }
+
+// func teardownFixture(recipeId int64) {
+// 	req, err := http.NewRequest("DELETE", fmt.Sprintf("/recipe/%v", recipeId), nil)
+// 	db := recipeDb.NewRecipeDb()
+// 	repo := repository.NewRecipeRepository(db)
+
+// 	if err != nil {
+// 		log.Panic(err)
+// 	}
+
+// 	vars := map[string]string{
+// 		"id": fmt.Sprint(recipeId),
+// 	}
+
+// 	req = mux.SetURLVars(req, vars)
+
+// 	rr := httptest.NewRecorder()
+// 	handler := http.HandlerFunc(DeleteRecipeHandler(&repo))
+
+// 	handler.ServeHTTP(rr, req)
+
+// 	if rr.Result().StatusCode != 200 {
+// 		fmt.Printf("error with teardown fixture expected: %v but got %v", 200, rr.Result().StatusCode)
+// 	}
+// }

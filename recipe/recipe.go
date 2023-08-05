@@ -1,13 +1,13 @@
 package recipe
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
 	"strconv"
 
 	"github.com/golang-jwt/jwt"
 	"github.com/gorilla/mux"
+	"github.com/recipe-api/database"
 	"github.com/recipe-api/repository"
 )
 
@@ -15,138 +15,46 @@ type Recipe struct {
 	repo *repository.RecipeRepository
 }
 
-func NewRecipe(repo repository.RecipeRepository) *Recipe {
+func NewRecipe(repo *repository.RecipeRepository) *Recipe {
 	return &Recipe{
-		repo: &repo,
+		repo: repo,
 	}
 }
 
-func (r Recipe) Get() http.HandlerFunc {
-	fn := func(w http.ResponseWriter, req *http.Request) {
-		recipeUserId, shouldReturn := getRecipeUserId(req, w)
-		if shouldReturn {
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-		recipeId, err := strconv.Atoi(mux.Vars(req)["id"])
+func (r Recipe) Get(recipeId int, recipeUserId int) (*database.Recipe, error) {
+	recipe, err := r.repo.GetRecipe(recipeId, recipeUserId)
 
-		if err != nil {
-			log.Print(err)
-			w.WriteHeader(http.StatusBadRequest)
-		}
-
-		rs, err := r.repo.GetRecipe(recipeId, recipeUserId)
-
-		if err != nil {
-			log.Print(err)
-			w.WriteHeader(http.StatusNotFound)
-			return
-		}
-
-		j, err := json.Marshal(rs)
-
-		if err != nil {
-			log.Print(err)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-		w.Write(j)
+	if err != nil {
+		return nil, err
 	}
-	return http.HandlerFunc(fn)
+	return recipe, err
 }
 
-func (r Recipe) GetAll() http.HandlerFunc {
-	fn := func(w http.ResponseWriter, req *http.Request) {
-		recipeUserId, shouldReturn := getRecipeUserId(req, w)
-		if shouldReturn {
-			return
-		}
+func (r Recipe) GetAll(recipeUserId int) (*[]database.Recipe, error) {
+	recipes, err := r.repo.GetRecipes(recipeUserId)
 
-		rs, err := r.repo.GetRecipes(recipeUserId)
-
-		if err != nil {
-			log.Print(err)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
-		j, err := json.Marshal(rs)
-		if err != nil {
-			log.Print(err)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-		w.Write(j)
+	if err != nil {
+		return nil, err
 	}
-	return http.HandlerFunc(fn)
+	return &recipes, err
 }
 
-func (r Recipe) Insert() http.HandlerFunc {
-	fn := func(w http.ResponseWriter, req *http.Request) {
-		recipeUserId, shouldReturn := getRecipeUserId(req, w)
-		if shouldReturn {
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
+func (r Recipe) Insert(recipeUserId int, saveRecipe repository.SaveRecipe) (int32, error) {
+	id, err := r.repo.InsertRecipe(recipeUserId, &saveRecipe)
 
-		var recipeToSave repository.SaveRecipe
-		if err := json.NewDecoder(req.Body).Decode(&recipeToSave); err != nil {
-			log.Print(err)
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		id, err := r.repo.InsertRecipe(recipeUserId, &recipeToSave)
-		if err != nil {
-			log.Print(err)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
-		w.WriteHeader(http.StatusCreated)
-		j, err := json.Marshal(id)
-
-		if err != nil {
-			log.Print(err)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-		w.Write(j)
+	if err != nil {
+		return 0, err
 	}
-	return http.HandlerFunc(fn)
+	return id, err
 }
 
-func (r Recipe) Update() http.HandlerFunc {
-	fn := func(w http.ResponseWriter, req *http.Request) {
-		recipeUserId, shouldReturn := getRecipeUserId(req, w)
-		if shouldReturn {
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
+func (r Recipe) Update(recipeUserId int, recipeId int, saveRecipe repository.SaveRecipe) (bool, error) {
+	_, err := r.repo.UpdateRecipe(recipeId, recipeUserId, &saveRecipe)
 
-		recipeId, err := strconv.Atoi(mux.Vars(req)["id"])
-
-		if err != nil {
-			log.Print(err)
-			w.WriteHeader(http.StatusBadRequest)
-		}
-		var recipeToUpdate repository.SaveRecipe
-		if err := json.NewDecoder(req.Body).Decode(&recipeToUpdate); err != nil {
-			log.Print(err)
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		_, err = r.repo.UpdateRecipe(recipeId, recipeUserId, &recipeToUpdate)
-		if err != nil {
-			log.Print(err)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
-		w.WriteHeader(http.StatusOK)
+	if err != nil {
+		return false, err
 	}
-	return http.HandlerFunc(fn)
+	return true, nil
 }
 
 func (r Recipe) Delete() http.HandlerFunc {

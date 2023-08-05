@@ -12,7 +12,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 	"github.com/recipe-api/database"
-	"github.com/recipe-api/middleware"
+	"github.com/recipe-api/handler"
 	"github.com/recipe-api/recipe"
 	"github.com/recipe-api/repository"
 	"github.com/recipe-api/user"
@@ -41,6 +41,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer db.Close()
 
 	migrations := &migrate.FileMigrationSource{
 		Dir: migrationsDir,
@@ -69,22 +70,14 @@ func main() {
 	userRepository := repository.NewUserRepository(queries, &ctx)
 	recipeRepository := repository.NewRecipeRepository(queries, &ctx)
 
-	user := user.NewUser(userRepository)
-	recipe := recipe.NewRecipe(recipeRepository)
+	user := user.NewUser(&userRepository)
+	recipe := recipe.NewRecipe(&recipeRepository)
 
 	log.Println("Loading routes...")
 	mr := mux.NewRouter()
+	h := handler.NewHandler(*user, *recipe)
 
-	mr.HandleFunc("/register", user.Register()).Methods("POST")
-	mr.HandleFunc("/login", user.Login()).Methods("POST")
-
-	mr.Handle("/recipe", middleware.VerifyToken(recipe.Get())).Methods("GET")
-	mr.Handle("/recipe/{id}", middleware.VerifyToken(recipe.GetAll())).Methods("GET")
-	mr.Handle("/recipe", middleware.VerifyToken(recipe.Insert())).Methods("POST")
-	mr.Handle("/recipe/{id}", middleware.VerifyToken(recipe.Update())).Methods("PUT")
-	mr.Handle("/recipe/{id}", middleware.VerifyToken(recipe.Delete())).Methods("DELETE")
-
-	mr.HandleFunc("/health-check", HealthCheck).Methods("GET")
+	h.Start(mr)
 
 	http.Handle("api/", mr)
 	serverPort := fmt.Sprintf(":%s", os.Getenv("serverport"))
@@ -92,9 +85,4 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-}
-
-func HealthCheck(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, "API is up and running")
 }

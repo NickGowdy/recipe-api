@@ -1,11 +1,14 @@
-package middleware
+package security
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/golang-jwt/jwt"
 )
@@ -26,6 +29,23 @@ func VerifyToken(next http.Handler) http.Handler {
 		// props, _ := r.Context().Value("props").(jwt.MapClaims)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
+}
+
+func GenerateToken(id int64) (string, error) {
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"exp":            json.Number(strconv.FormatInt(time.Now().Add(time.Hour*time.Duration(1)).Unix(), 10)),
+		"iat":            json.Number(strconv.FormatInt(time.Now().Unix(), 10)),
+		"recipe_user_id": id,
+	})
+
+	tokenString, err := token.SignedString([]byte("SecretYouShouldHide"))
+
+	if err != nil {
+		return "", err
+	}
+
+	return tokenString, nil
 }
 
 func GetClaimsFromToken(r *http.Request) (jwt.MapClaims, error) {
